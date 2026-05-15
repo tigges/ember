@@ -186,13 +186,13 @@ h2 em{font-style:italic;color:var(--purple-m);}
 .num-lbl{font-size:13px;color:var(--muted);line-height:1.4;}
 
 .booking{background:linear-gradient(135deg,var(--grad-a) 0%,var(--grad-b) 55%,var(--grad-c) 100%);padding:96px 60px;}
-.bk-inner{display:grid;grid-template-columns:1fr 480px;gap:80px;align-items:start;}
+.bk-inner{display:grid;grid-template-columns:1fr 580px;gap:80px;align-items:start;}
 .booking .s-label{color:rgba(255,255,255,.45);}
 .booking .s-label::before{background:rgba(255,255,255,.25);}
 .booking h2{color:var(--white);}
 .booking h2 em{color:rgba(255,255,255,.5);}
 .booking p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:16px;max-width:380px;font-weight:300;}
-.bk-card{background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.2);}
+.bk-card{background:var(--white);border-radius:20px;overflow:visible;box-shadow:0 24px 64px rgba(0,0,0,.2);}
 .bk-tabs{display:flex;background:var(--off);border-bottom:1px solid var(--border);}
 .bktab{flex:1;padding:14px;text-align:center;font-weight:600;font-size:12px;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;}
 .bktab.on{color:var(--purple-m);background:var(--white);border-bottom-color:var(--purple-m);}
@@ -262,6 +262,14 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s,transform .55s;}
 .reveal.in{opacity:1;transform:none;}
 
+.bk-err{font-size:11px;color:#DC2626;margin-top:6px;display:none;}
+.bk-success{padding:32px 24px;text-align:center;}
+.bk-success-icon{font-size:44px;color:#16A34A;margin-bottom:14px;}
+.bk-success-title{font-family:var(--font-d);font-weight:600;font-size:20px;color:var(--ink);margin-bottom:8px;}
+.bk-success-body{font-size:13px;color:var(--muted);line-height:1.7;}
+.chat-email-capture .bi{border-radius:8px;font-size:12px;}
+.chat-email-capture .sub-btn{width:100%;padding:8px 16px;font-size:12px;border-radius:8px;}
+
 @media(max-width:960px){
   .nav-inner{padding:0 20px;}
   .hero{grid-template-columns:1fr;padding:110px 20px 60px;}
@@ -321,7 +329,7 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
       <div class="bot-msgs" id="heroBotMsgs">
         <div class="msg msg-b">
           <div class="mav">🔥</div>
-          <div class="bub">Quick question — what's eating your support team's time right now?</div>
+          <div class="bub">Running player support for an iGaming operator? I can tell you exactly what Ember would handle for your setup.</div>
         </div>
       </div>
       <div class="bot-input-row">
@@ -514,38 +522,15 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
         <button class="bktab on" onclick="switchTab('cal',this)">📅 Pick a slot</button>
         <button class="bktab" onclick="switchTab('form',this)">✉️ Send a note</button>
       </div>
-      <div class="bkpanel on" id="bkpanel-cal">
-        <div class="cal-hdr">
-          <div class="cal-mo">June 2026</div>
-          <div class="cal-nav-btns"><button class="cal-nb">‹</button><button class="cal-nb">›</button></div>
-        </div>
-        <div class="cal-wds"><div class="cal-wd">M</div><div class="cal-wd">T</div><div class="cal-wd">W</div><div class="cal-wd">T</div><div class="cal-wd">F</div><div class="cal-wd">S</div><div class="cal-wd">S</div></div>
-        <div class="cal-grid" id="calGrid"></div>
-        <div class="ts-wrap" id="tsWrap">
-          <div class="ts-lbl">Available times — London BST</div>
-          <div class="ts-grid">
-            <button class="ts-btn" onclick="selSlot(this)">09:00</button>
-            <button class="ts-btn" onclick="selSlot(this)">10:30</button>
-            <button class="ts-btn" onclick="selSlot(this)">11:00</button>
-            <button class="ts-btn" onclick="selSlot(this)">14:00</button>
-            <button class="ts-btn" onclick="selSlot(this)">15:30</button>
-            <button class="ts-btn" onclick="selSlot(this)">16:00</button>
-          </div>
-        </div>
-        <div class="bk-form" id="bkForm">
-          <div class="fnote">Almost done — just a couple of details:</div>
-          <div class="frow"><input class="fi" placeholder="First name"><input class="fi" placeholder="Last name"></div>
-          <div class="frow"><input class="fi" placeholder="Work email" style="grid-column:1/-1"></div>
-          <div class="frow"><input class="fi" placeholder="Company / Brand"><input class="fi" placeholder="Your role"></div>
-          <button class="sub-btn">Confirm session →</button>
-        </div>
+      <div class="bkpanel on" id="bkpanel-cal" style="padding:0;border-radius:0 0 20px 20px;overflow:hidden;">
+        <div id="cal-booking-placeholder" style="min-height:600px;width:100%;"></div>
       </div>
       <div class="bkpanel" id="bkpanel-form">
         <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.65;">Not ready to book? Drop your details — we'll be in touch within one business day.</div>
-        <div class="frow"><input class="fi" placeholder="First name"><input class="fi" placeholder="Last name"></div>
-        <input class="fi" placeholder="Work email" style="display:block;width:100%;margin-bottom:8px;">
-        <input class="fi" placeholder="Company / iGaming brand" style="display:block;width:100%;margin-bottom:8px;">
-        <select class="fi" style="display:block;width:100%;margin-bottom:8px;color:var(--muted);">
+        <div class="frow"><input class="fi" id="noteFirstName" placeholder="First name"><input class="fi" id="noteLastName" placeholder="Last name"></div>
+        <input class="fi" id="noteEmail" placeholder="Work email" type="email" style="display:block;width:100%;margin-bottom:8px;">
+        <input class="fi" id="noteCompany" placeholder="Company / iGaming brand" style="display:block;width:100%;margin-bottom:8px;">
+        <select class="fi" id="noteChallenge" style="display:block;width:100%;margin-bottom:8px;color:var(--muted);">
           <option value="" disabled selected>Biggest support challenge?</option>
           <option>Bonus & promotion query volume</option>
           <option>KYC & verification queries</option>
@@ -554,8 +539,9 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
           <option>Reducing agent headcount costs</option>
           <option>Other</option>
         </select>
-        <textarea class="fi" rows="3" placeholder="Anything else we should know..." style="display:block;width:100%;resize:none;"></textarea>
-        <button class="sub-btn" style="margin-top:12px;">Send →</button>
+        <textarea class="fi" id="noteMessage" rows="3" placeholder="Anything else we should know..." style="display:block;width:100%;resize:none;"></textarea>
+        <div class="bk-err" id="noteError"></div>
+        <button class="sub-btn" id="noteSubmitBtn" onclick="submitNote()" style="margin-top:12px;">Send →</button>
       </div>
     </div>
   </div>
@@ -589,7 +575,7 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
     <div class="modal-msgs" id="modalMsgs">
       <div class="msg msg-b" style="opacity:1;animation:none;">
         <div class="mav">🔥</div>
-        <div class="bub">Quick question — what's eating your support team's time right now?</div>
+        <div class="bub">Running player support for an iGaming operator? I can tell you exactly what Ember would handle for your setup.</div>
         </div>
       </div>
     </div>
@@ -601,47 +587,101 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
 </div>
 
 <script>
-// ── CALENDAR ──
-(function(){
-  const g=document.getElementById('calGrid');
-  const avail=[2,3,5,9,10,12,16,17,19,23,24,26,30];
-  g.innerHTML='<div class="cal-d empty"></div>';
-  for(let d=1;d<=30;d++){
-    const el=document.createElement('div');
-    el.className='cal-d';el.textContent=d;
-    if(d<2){el.classList.add('past');}
-    else if(avail.includes(d)){el.classList.add('avail');el.onclick=()=>selDay(el);}
-    else{el.classList.add('past');el.style.opacity='.15';}
-    g.appendChild(el);
-  }
-})();
+// ── CAL.COM EMBED ──
+(function (C, A, L) {
+  let p = function (a, ar) { a.q.push(ar); };
+  let d = C.document;
+  C.Cal = C.Cal || function () {
+    let cal = C.Cal; let ar = arguments;
+    if (!cal.loaded) {
+      cal.ns = {}; cal.q = cal.q || [];
+      d.head.appendChild(d.createElement("script")).src = A;
+      cal.loaded = true;
+    }
+    if (ar[0] === L) {
+      const api = function () { p(api, arguments); };
+      const namespace = ar[1]; api.q = api.q || [];
+      if (typeof namespace === "string") {
+        cal.ns[namespace] = cal.ns[namespace] || api;
+        p(cal.ns[namespace], ar);
+        p(cal, [L, namespace, ar[2]]);
+      } else p(cal, ar);
+      return;
+    }
+    p(cal, ar);
+  };
+})(window, "https://app.cal.com/embed/embed.js", "init");
 
-function selDay(el){
-  document.querySelectorAll('.cal-d.sel').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');
-  document.getElementById('tsWrap').classList.add('show');
-  document.querySelectorAll('.ts-btn.sel').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('bkForm').classList.remove('show');
+Cal("init", { origin: "https://cal.com" });
+Cal("inline", {
+  elementOrSelector: "#cal-booking-placeholder",
+  calLink: "charles-tigges-tp/30min",
+  layout: "month_view"
+});
+Cal("ui", {
+  theme: "light",
+  styles: { branding: { brandColor: "#5B4B8A" } },
+  hideEventTypeDetails: false
+});
+
+// ── UI HELPERS ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.bktab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.bkpanel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('bkpanel-' + id).classList.add('on');
 }
-function selSlot(el){
-  document.querySelectorAll('.ts-btn.sel').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');document.getElementById('bkForm').classList.add('show');
+
+function openModal()  { document.getElementById('overlay').classList.add('open'); }
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+
+// ── SEND A NOTE FORM ──
+async function submitNote() {
+  const firstName = document.getElementById('noteFirstName').value.trim();
+  const lastName  = document.getElementById('noteLastName').value.trim();
+  const email     = document.getElementById('noteEmail').value.trim();
+  const company   = document.getElementById('noteCompany').value.trim();
+  const challenge = document.getElementById('noteChallenge').value;
+  const message   = document.getElementById('noteMessage').value.trim();
+  const errEl     = document.getElementById('noteError');
+
+  errEl.style.display = 'none';
+  if (!firstName || !email) {
+    errEl.textContent = 'Please fill in at least your name and email.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('noteSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    await fetch('/.netlify/functions/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'note', firstName, lastName, email, company, challenge, message })
+    });
+    document.getElementById('bkpanel-form').innerHTML =
+      `<div class="bk-success">
+        <div class="bk-success-icon">✓</div>
+        <div class="bk-success-title">Message sent.</div>
+        <div class="bk-success-body">We'll be in touch within one business day.</div>
+      </div>`;
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Send →';
+    errEl.textContent = 'Something went wrong — please try again.';
+    errEl.style.display = 'block';
+  }
 }
-function switchTab(id,btn){
-  document.querySelectorAll('.bktab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.bkpanel').forEach(p=>p.classList.remove('on'));
-  btn.classList.add('on');document.getElementById('bkpanel-'+id).classList.add('on');
-}
-function openModal(){document.getElementById('overlay').classList.add('open');}
-function closeModal(){document.getElementById('overlay').classList.remove('open');}
 
 // ── SHARED BOT UTILITIES ──
-function addMsg(container, role, text){
+function addMsg(container, role, text) {
   const m = document.createElement('div');
   m.className = `msg msg-${role==='bot'?'b':'u'}`;
   m.style.cssText = 'opacity:1;animation:none;';
-  const av = role==='bot' ? '<div class="mav">🔥</div>' : '';
-  m.innerHTML = role==='bot'
+  const av = role === 'bot' ? '<div class="mav">🔥</div>' : '';
+  m.innerHTML = role === 'bot'
     ? `${av}<div class="bub">${text}</div>`
     : `<div class="bub">${text}</div>`;
   container.appendChild(m);
@@ -649,7 +689,7 @@ function addMsg(container, role, text){
   return m;
 }
 
-function addTyping(container){
+function addTyping(container) {
   const t = document.createElement('div');
   t.className = 'msg msg-b';
   t.style.cssText = 'opacity:1;animation:none;';
@@ -659,64 +699,142 @@ function addTyping(container){
   return t;
 }
 
-function showInlineCalendar(container){
-  const slots = ['Mon 2 Jun · 09:00','Mon 2 Jun · 11:00','Tue 3 Jun · 10:30','Tue 3 Jun · 14:00','Wed 5 Jun · 09:00','Wed 5 Jun · 15:30'];
-  const cal = document.createElement('div');
-  cal.className = 'msg msg-b';
-  cal.style.cssText = 'opacity:1;animation:none;';
-  cal.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:280px;">
-    <div style="margin-bottom:8px;">Here are some open slots — pick whatever works:</div>
-    <div class="chat-cal show">
-      <div class="chat-cal-slots">${slots.map(s=>`<div class="chat-slot" onclick="bookSlot(this,'${s}')">${s}</div>`).join('')}</div>
-      <div class="confirm-msg" id="confirmMsg">✓ Booked! We'll send a calendar invite to your email.</div>
-    </div>
+// Shows a Cal.com popup trigger inside the chat when SHOW_CALENDAR fires
+function showCalBooking(container) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg msg-b';
+  wrap.style.cssText = 'opacity:1;animation:none;';
+  wrap.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:260px;">
+    <div style="margin-bottom:10px;">Here's my calendar — pick a time that works:</div>
+    <button onclick="Cal('modal',{calLink:'charles-tigges-tp/30min'})"
+      style="width:100%;padding:10px 14px;font-family:var(--font-b);font-weight:600;font-size:13px;
+             color:var(--white);background:var(--purple-m);border:none;border-radius:10px;cursor:pointer;">
+      📅 See available slots
+    </button>
   </div>`;
-  container.appendChild(cal);
+  container.appendChild(wrap);
   container.scrollTop = container.scrollHeight;
 }
 
-function bookSlot(el, slot){
-  document.querySelectorAll('.chat-slot').forEach(s=>s.classList.remove('booked'));
-  el.classList.add('booked');
-  const confirm = el.closest('.bub').querySelector('.confirm-msg');
-  if(confirm){ confirm.classList.add('show'); }
-}
-
 // ── CLAUDE API BOT ENGINE ──
-const SYSTEM_PROMPT = `You are Ember, an AI assistant for an AI-powered player support product built specifically for iGaming operators. You are having a conversation with a potential client — likely a Head of CX, COO, or VP of Customer Support at an iGaming operator.
+const SYSTEM_PROMPT = `You are Ember, an AI assistant for an AI-powered
+player support product built specifically for
+iGaming operators. You are having a conversation
+with a potential client — likely a Head of CX,
+COO, or VP of Customer Support at an iGaming operator.
 
 PERSONALITY
-You are warm, curious, and genuinely knowledgeable about iGaming operations. You talk like a smart colleague who happens to know a lot about player support — not a sales rep, not a chatbot, not a form. You have real opinions. You are honest. If something isn't a fit, you would say so. You never use buzzwords, corporate jargon, or phrases like "Great question!" or "Absolutely!".
+You are warm, curious, and genuinely knowledgeable
+about iGaming operations. You talk like a smart
+colleague who happens to know a lot about player
+support — not a sales rep, not a chatbot, not a form.
+You have real opinions. You are honest. If something
+isn't a fit, you would say so. You never use buzzwords,
+corporate jargon, or phrases like "Great question!"
+or "Absolutely!".
 
 PURPOSE
-Have a real conversation. Listen more than you talk. Let the visitor lead. Share useful iGaming insights naturally — not as a pitch. The goal is for them to feel understood, not sold to. If a demo makes sense, suggest it gently. Never push.
+Have a real conversation. Listen more than you talk.
+Let the visitor lead. Share useful iGaming insights
+naturally — not as a pitch. The goal is for them to
+feel understood, not sold to. If a demo makes sense,
+suggest it gently. Never push.
 
 CONVERSATION RULES — FOLLOW THESE STRICTLY
-1. NEVER ask two questions in the same message. One question maximum, always.
-2. NEVER ask about budget, company size, headcount, or timeline unless they bring it up first.
-3. NEVER use bullet points, numbered lists, or headers in your responses.
-4. Keep responses to 2-4 sentences maximum. Shorter is better.
-5. NEVER start a response with "Great!", "Absolutely!", "Of course!", "Sure!" or any hollow affirmation.
-6. Do not summarise what the visitor just said back to them — just respond to it.
-7. Do not explain what Ember is unless asked directly — let it come out through conversation.
-8. If the visitor seems disengaged or gives short answers, do not pepper them with more questions. Give them space.
-9. If the visitor wants to book immediately, respond naturally and reply with exactly the token: SHOW_CALENDAR
-10. If the conversation naturally reaches a point where a demo makes sense, suggest it once — softly. Something like "Honestly the fastest way to get into this properly is just to show you — 30 minutes, your actual setup." Then leave it.
+1. NEVER ask two questions in the same message.
+   One question maximum, always.
+2. NEVER ask about budget, company size, headcount,
+   or timeline unless they bring it up first.
+3. NEVER use bullet points, numbered lists, or
+   headers in your responses.
+4. Keep responses to 2-4 sentences maximum.
+   Shorter is better.
+5. NEVER start a response with "Great!", "Absolutely!",
+   "Of course!", "Sure!" or any hollow affirmation.
+6. Do not summarise what the visitor just said back
+   to them — just respond to it.
+7. Do not explain what Ember is unless asked directly
+   — let it come out through conversation.
+8. If the visitor seems disengaged or gives short
+   answers, do not pepper them with more questions.
+   Give them space.
+9. If the visitor wants to book immediately, reply
+   with exactly the token: SHOW_CALENDAR
+10. Suggest a demo once, softly, then leave it.
+    Never push twice.
+11. If someone says anything that means yes to a demo
+    — "yes", "yeah", "sure", "ok", "go on", "dah",
+    "why not", "sounds good", or any clear affirmative
+    in the context of booking — reply with exactly:
+    SHOW_CALENDAR. Do not confirm, do not ask for
+    email, do not add any text. Just: SHOW_CALENDAR
 
-IIGAMING KNOWLEDGE — you know this deeply
-- 60% of iGaming support volume is bonus and promotion related
-- Common bonus queries: wager completion disputes, free spin conditions, bonus not triggering, real vs bonus balance confusion
-- Agents cannot hold 10 concurrent promotion rule sets in their heads — Ember can
-- Payment queries: ARN lookups, PSP routing, Noda methods, withdrawal holds pending KYC
-- KYC queries: document upload confusion, processing delays, status anxiety, which document is needed
-- Responsible gaming: self-exclusion, deposit limits, cooling-off periods, RG compliance
-- Multilingual support is critical — EU, DACH, LATAM markets especially
-- Smart escalation: when Ember can't resolve, it hands to a human agent with full context — no re-explanation needed
-- Ember automation starts at 25-30% from day one and grows as it learns the operator's setup
-- First response time under 10 seconds, 24/7, 40+ languages
+HARD STOP RULES — these override everything else
+- If the visitor says "I want a bot", "we need a
+  bot", "looking for a chatbot" or any variation:
+  do NOT ask what kind, what channels, what volume,
+  or anything else. Respond with one sentence about
+  what Ember does + one booking invite. Full stop.
+- If the visitor expresses any frustration, says
+  you're boring, slow, annoying, or tells you to
+  get to the point: STOP all questions immediately.
+  Acknowledge in one short sentence. Pitch Ember
+  in one sentence. Offer a booking. Nothing else.
+- Never ask for someone's email in the chat.
+  The booking system handles that.
+
+IGAMING KNOWLEDGE — you know this deeply
+- 60% of iGaming support volume is bonus and
+  promotion related
+- Common bonus queries: wager completion disputes,
+  free spin conditions, bonus not triggering,
+  real vs bonus balance confusion
+- Agents cannot hold 10 concurrent promotion rule
+  sets in their heads — Ember can
+- Payment queries: ARN lookups, PSP routing,
+  Noda methods, withdrawal holds pending KYC
+- KYC queries: document upload confusion,
+  processing delays, status anxiety
+- Responsible gaming: self-exclusion, deposit limits,
+  cooling-off periods
+- Multilingual: EU, DACH, LATAM markets especially
+- Ember starts at 25-30% automation from day one
+  and grows as it learns
+- First response under 10 seconds, 24/7, 40+ languages
+
+HANDLING SPECIFIC SITUATIONS
+
+If someone says "I want a bot" or similar:
+Do not ask anything. Say what Ember does in one
+sentence, offer a demo in one sentence. Stop.
+Example: "Ember handles player support for iGaming
+operators — bonus queries, payments, KYC, all the
+repetitive stuff. Want to jump on a 30-minute call
+and see it live?"
+
+If someone says yes to a demo in any form:
+Reply with exactly: SHOW_CALENDAR
+
+If someone pushes back, says you're boring, or
+tells you to get to the point:
+One sentence acknowledging it. One sentence on
+Ember. One booking invite. No questions.
+Example: "Fair — Ember automates iGaming player
+support, starting at 25% from day one. Want to
+see it working on your actual setup?"
+
+If someone is clearly not an iGaming operator:
+Be friendly and honest. Don't try to convert them.
+A graceful exit is fine.
 
 WHAT YOU ARE NOT DOING
-You are not qualifying leads. You are not extracting information. You are not running a sales script. You are having a conversation that happens to be useful — and if there is a natural fit, that will become obvious on its own.`;
+You are not qualifying leads. You are not extracting
+information. You are not running a sales script.
+You are never asking for someone's email.
+
+The single most important rule: when in doubt, say
+less. One sentence and a door left open beats three
+questions every time.`;
 
 const heroHistory = [];
 const modalHistory = [];
@@ -757,14 +875,10 @@ async function heroSend(){
   const reply = await callEmber(val, heroHistory);
   t.remove();
   input.disabled = false;
-  if(reply === 'SHOW_CALENDAR'){
-    addMsg(msgs, 'bot', "Great — here are some times that work:");
-    showInlineCalendar(msgs);
+  if(reply === 'SHOW_CALENDAR' || reply.includes('SHOW_CALENDAR')){
+    showCalBooking(msgs);
   } else {
     addMsg(msgs, 'bot', reply);
-    if(reply.toLowerCase().includes('show_calendar')){
-      showInlineCalendar(msgs);
-    }
   }
 }
 
@@ -782,8 +896,7 @@ async function modalSend(){
   t.remove();
   input.disabled = false;
   if(reply === 'SHOW_CALENDAR' || reply.includes('SHOW_CALENDAR')){
-    addMsg(msgs, 'bot', "Great — here are some open slots:");
-    showInlineCalendar(msgs);
+    showCalBooking(msgs);
   } else {
     addMsg(msgs, 'bot', reply);
   }
