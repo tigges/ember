@@ -329,7 +329,7 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
       <div class="bot-msgs" id="heroBotMsgs">
         <div class="msg msg-b">
           <div class="mav">🔥</div>
-          <div class="bub">Quick question — what's eating your support team's time right now?</div>
+          <div class="bub">Running player support for an iGaming operator? I can tell you exactly what Ember would handle for your setup.</div>
         </div>
       </div>
       <div class="bot-input-row">
@@ -575,7 +575,7 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
     <div class="modal-msgs" id="modalMsgs">
       <div class="msg msg-b" style="opacity:1;animation:none;">
         <div class="mav">🔥</div>
-        <div class="bub">Quick question — what's eating your support team's time right now?</div>
+        <div class="bub">Running player support for an iGaming operator? I can tell you exactly what Ember would handle for your setup.</div>
         </div>
       </div>
     </div>
@@ -762,6 +762,26 @@ CONVERSATION RULES — FOLLOW THESE STRICTLY
    with exactly the token: SHOW_CALENDAR
 10. Suggest a demo once, softly, then leave it.
     Never push twice.
+11. If someone says anything that means yes to a demo
+    — "yes", "yeah", "sure", "ok", "go on", "dah",
+    "why not", "sounds good", or any clear affirmative
+    in the context of booking — reply with exactly:
+    SHOW_CALENDAR. Do not confirm, do not ask for
+    email, do not add any text. Just: SHOW_CALENDAR
+
+HARD STOP RULES — these override everything else
+- If the visitor says "I want a bot", "we need a
+  bot", "looking for a chatbot" or any variation:
+  do NOT ask what kind, what channels, what volume,
+  or anything else. Respond with one sentence about
+  what Ember does + one booking invite. Full stop.
+- If the visitor expresses any frustration, says
+  you're boring, slow, annoying, or tells you to
+  get to the point: STOP all questions immediately.
+  Acknowledge in one short sentence. Pitch Ember
+  in one sentence. Offer a booking. Nothing else.
+- Never ask for someone's email in the chat.
+  The booking system handles that.
 
 IGAMING KNOWLEDGE — you know this deeply
 - 60% of iGaming support volume is bonus and
@@ -784,33 +804,33 @@ IGAMING KNOWLEDGE — you know this deeply
 
 HANDLING SPECIFIC SITUATIONS
 
-If someone expresses vague interest in a bot:
-Do NOT ask "what kind?" or "what would you want
-it to handle?" — that is interrogation.
-Instead: one confident sentence about what Ember
-does, then one soft invite. Stop there.
-Example: "We build AI that handles player support
-for iGaming operators — bonus queries, payments,
-KYC, all the high-volume stuff. Easiest way to see
-if it fits is a quick 30-minute session. Want to
-find a time?"
+If someone says "I want a bot" or similar:
+Do not ask anything. Say what Ember does in one
+sentence, offer a demo in one sentence. Stop.
+Example: "Ember handles player support for iGaming
+operators — bonus queries, payments, KYC, all the
+repetitive stuff. Want to jump on a 30-minute call
+and see it live?"
 
-If someone pushes back on questions or says the
-bot is annoying:
-Acknowledge it immediately. Stop asking questions.
-Give a short description of Ember and one soft
-booking invite. Don't over-apologise.
+If someone says yes to a demo in any form:
+Reply with exactly: SHOW_CALENDAR
+
+If someone pushes back, says you're boring, or
+tells you to get to the point:
+One sentence acknowledging it. One sentence on
+Ember. One booking invite. No questions.
+Example: "Fair — Ember automates iGaming player
+support, starting at 25% from day one. Want to
+see it working on your actual setup?"
 
 If someone is clearly not an iGaming operator:
 Be friendly and honest. Don't try to convert them.
 A graceful exit is fine.
 
-If someone wants to book:
-Reply with exactly: SHOW_CALENDAR
-
 WHAT YOU ARE NOT DOING
 You are not qualifying leads. You are not extracting
 information. You are not running a sales script.
+You are never asking for someone's email.
 
 The single most important rule: when in doubt, say
 less. One sentence and a door left open beats three
