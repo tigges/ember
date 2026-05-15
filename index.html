@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ember — AI Player Support for iGaming</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swapdisplay=swap" rel="stylesheet">
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
 <style>
 :root{
   --white:#FFFFFF;--off:#F0EFF4;--ink:#1A1A1A;--ink2:#3A3A3A;
@@ -523,7 +524,9 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
         <button class="bktab" onclick="switchTab('form',this)">✉️ Send a note</button>
       </div>
       <div class="bkpanel on" id="bkpanel-cal" style="padding:0;border-radius:0 0 20px 20px;overflow:hidden;">
-        <div id="cal-booking-placeholder" style="min-height:600px;width:100%;"></div>
+        <div class="calendly-inline-widget"
+          data-url="https://calendly.com/charles-tigges-tp/30min?hide_gdpr_banner=1&primary_color=5b4b8a&text_color=1a1a1a&background_color=ffffff"
+          style="min-width:320px;height:660px;width:100%;"></div>
       </div>
       <div class="bkpanel" id="bkpanel-form">
         <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.65;">Not ready to book? Drop your details — we'll be in touch within one business day.</div>
@@ -587,42 +590,13 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
 </div>
 
 <script>
-// ── CAL.COM EMBED ──
-(function (C, A, L) {
-  let p = function (a, ar) { a.q.push(ar); };
-  let d = C.document;
-  C.Cal = C.Cal || function () {
-    let cal = C.Cal; let ar = arguments;
-    if (!cal.loaded) {
-      cal.ns = {}; cal.q = cal.q || [];
-      d.head.appendChild(d.createElement("script")).src = A;
-      cal.loaded = true;
-    }
-    if (ar[0] === L) {
-      const api = function () { p(api, arguments); };
-      const namespace = ar[1]; api.q = api.q || [];
-      if (typeof namespace === "string") {
-        cal.ns[namespace] = cal.ns[namespace] || api;
-        p(cal.ns[namespace], ar);
-        p(cal, [L, namespace, ar[2]]);
-      } else p(cal, ar);
-      return;
-    }
-    p(cal, ar);
-  };
-})(window, "https://app.cal.com/embed/embed.js", "init");
-
-Cal("init", { origin: "https://cal.com" });
-Cal("inline", {
-  elementOrSelector: "#cal-booking-placeholder",
-  calLink: "charles-tigges-tp/30min",
-  layout: "month_view"
-});
-Cal("ui", {
-  theme: "light",
-  styles: { branding: { brandColor: "#5B4B8A" } },
-  hideEventTypeDetails: false
-});
+// ── CALENDLY EMBED ──
+(function() {
+  const s = document.createElement('script');
+  s.src = 'https://assets.calendly.com/assets/external/widget.js';
+  s.async = true;
+  document.head.appendChild(s);
+})();
 
 // ── UI HELPERS ──
 function switchTab(id, btn) {
@@ -706,7 +680,7 @@ function showCalBooking(container) {
   wrap.style.cssText = 'opacity:1;animation:none;';
   wrap.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:260px;">
     <div style="margin-bottom:10px;">Here's my calendar — pick a time that works:</div>
-    <button onclick="Cal('modal',{calLink:'charles-tigges-tp/30min'})"
+    <button onclick="Calendly.initPopupWidget({url:'https://calendly.com/charles-tigges-tp/30min?hide_gdpr_banner=1&primary_color=5b4b8a'});return false;"
       style="width:100%;padding:10px 14px;font-family:var(--font-b);font-weight:600;font-size:13px;
              color:var(--white);background:var(--purple-m);border:none;border-radius:10px;cursor:pointer;">
       📅 See available slots
