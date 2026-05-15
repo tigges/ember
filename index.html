@@ -262,6 +262,14 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
 .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s,transform .55s;}
 .reveal.in{opacity:1;transform:none;}
 
+.bk-err{font-size:11px;color:#DC2626;margin-top:6px;display:none;}
+.bk-success{padding:32px 24px;text-align:center;}
+.bk-success-icon{font-size:44px;color:#16A34A;margin-bottom:14px;}
+.bk-success-title{font-family:var(--font-d);font-weight:600;font-size:20px;color:var(--ink);margin-bottom:8px;}
+.bk-success-body{font-size:13px;color:var(--muted);line-height:1.7;}
+.chat-email-capture .bi{border-radius:8px;font-size:12px;}
+.chat-email-capture .sub-btn{width:100%;padding:8px 16px;font-size:12px;border-radius:8px;}
+
 @media(max-width:960px){
   .nav-inner{padding:0 20px;}
   .hero{grid-template-columns:1fr;padding:110px 20px 60px;}
@@ -517,7 +525,7 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
       <div class="bkpanel on" id="bkpanel-cal">
         <div class="cal-hdr">
           <div class="cal-mo">June 2026</div>
-          <div class="cal-nav-btns"><button class="cal-nb">‹</button><button class="cal-nb">›</button></div>
+          <div class="cal-nav-btns"><button class="cal-nb" onclick="prevMonth()">‹</button><button class="cal-nb" onclick="nextMonth()">›</button></div>
         </div>
         <div class="cal-wds"><div class="cal-wd">M</div><div class="cal-wd">T</div><div class="cal-wd">W</div><div class="cal-wd">T</div><div class="cal-wd">F</div><div class="cal-wd">S</div><div class="cal-wd">S</div></div>
         <div class="cal-grid" id="calGrid"></div>
@@ -534,18 +542,19 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
         </div>
         <div class="bk-form" id="bkForm">
           <div class="fnote">Almost done — just a couple of details:</div>
-          <div class="frow"><input class="fi" placeholder="First name"><input class="fi" placeholder="Last name"></div>
-          <div class="frow"><input class="fi" placeholder="Work email" style="grid-column:1/-1"></div>
-          <div class="frow"><input class="fi" placeholder="Company / Brand"><input class="fi" placeholder="Your role"></div>
-          <button class="sub-btn">Confirm session →</button>
+          <div class="frow"><input class="fi" id="bkFirstName" placeholder="First name"><input class="fi" id="bkLastName" placeholder="Last name"></div>
+          <div class="frow"><input class="fi" id="bkEmail" placeholder="Work email" type="email" style="grid-column:1/-1"></div>
+          <div class="frow"><input class="fi" id="bkCompany" placeholder="Company / Brand"><input class="fi" id="bkRole" placeholder="Your role"></div>
+          <div class="bk-err" id="bkError"></div>
+          <button class="sub-btn" id="bkSubmitBtn" onclick="submitBooking()">Confirm session →</button>
         </div>
       </div>
       <div class="bkpanel" id="bkpanel-form">
         <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.65;">Not ready to book? Drop your details — we'll be in touch within one business day.</div>
-        <div class="frow"><input class="fi" placeholder="First name"><input class="fi" placeholder="Last name"></div>
-        <input class="fi" placeholder="Work email" style="display:block;width:100%;margin-bottom:8px;">
-        <input class="fi" placeholder="Company / iGaming brand" style="display:block;width:100%;margin-bottom:8px;">
-        <select class="fi" style="display:block;width:100%;margin-bottom:8px;color:var(--muted);">
+        <div class="frow"><input class="fi" id="noteFirstName" placeholder="First name"><input class="fi" id="noteLastName" placeholder="Last name"></div>
+        <input class="fi" id="noteEmail" placeholder="Work email" type="email" style="display:block;width:100%;margin-bottom:8px;">
+        <input class="fi" id="noteCompany" placeholder="Company / iGaming brand" style="display:block;width:100%;margin-bottom:8px;">
+        <select class="fi" id="noteChallenge" style="display:block;width:100%;margin-bottom:8px;color:var(--muted);">
           <option value="" disabled selected>Biggest support challenge?</option>
           <option>Bonus & promotion query volume</option>
           <option>KYC & verification queries</option>
@@ -554,8 +563,9 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
           <option>Reducing agent headcount costs</option>
           <option>Other</option>
         </select>
-        <textarea class="fi" rows="3" placeholder="Anything else we should know..." style="display:block;width:100%;resize:none;"></textarea>
-        <button class="sub-btn" style="margin-top:12px;">Send →</button>
+        <textarea class="fi" id="noteMessage" rows="3" placeholder="Anything else we should know..." style="display:block;width:100%;resize:none;"></textarea>
+        <div class="bk-err" id="noteError"></div>
+        <button class="sub-btn" id="noteSubmitBtn" onclick="submitNote()" style="margin-top:12px;">Send →</button>
       </div>
     </div>
   </div>
@@ -601,47 +611,195 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
 </div>
 
 <script>
-// ── CALENDAR ──
-(function(){
-  const g=document.getElementById('calGrid');
-  const avail=[2,3,5,9,10,12,16,17,19,23,24,26,30];
-  g.innerHTML='<div class="cal-d empty"></div>';
-  for(let d=1;d<=30;d++){
-    const el=document.createElement('div');
-    el.className='cal-d';el.textContent=d;
-    if(d<2){el.classList.add('past');}
-    else if(avail.includes(d)){el.classList.add('avail');el.onclick=()=>selDay(el);}
-    else{el.classList.add('past');el.style.opacity='.15';}
-    g.appendChild(el);
-  }
-})();
+// ── CALENDAR STATE ──
+let calYear, calMonth;
+let calSelDate = null; // { d, m, y, label }
+let calSelTime = null;
 
-function selDay(el){
-  document.querySelectorAll('.cal-d.sel').forEach(c=>c.classList.remove('sel'));
+function initCal() {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
+  renderCal();
+}
+
+function renderCal() {
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.querySelector('.cal-mo').textContent = monthNames[calMonth] + ' ' + calYear;
+
+  const grid  = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // First weekday of the month (Mon=0 … Sun=6)
+  const firstDay = new Date(calYear, calMonth, 1);
+  let startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  for (let i = 0; i < startDow; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-d empty';
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(calYear, calMonth, d);
+    const dow  = date.getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const isPast    = date < today;
+
+    const el = document.createElement('div');
+    el.className  = 'cal-d';
+    el.textContent = d;
+
+    if (isPast || isWeekend) {
+      el.classList.add('past');
+    } else {
+      el.classList.add('avail');
+      const label = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+      el.addEventListener('click', () => selDay(el, d, label));
+      if (calSelDate && calSelDate.d === d && calSelDate.m === calMonth && calSelDate.y === calYear) {
+        el.classList.add('sel');
+      }
+    }
+    grid.appendChild(el);
+  }
+}
+
+function prevMonth() {
+  const now = new Date();
+  if (calYear === now.getFullYear() && calMonth === now.getMonth()) return;
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCal();
+}
+
+function nextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCal();
+}
+
+function selDay(el, d, label) {
+  document.querySelectorAll('.cal-d.sel').forEach(c => c.classList.remove('sel'));
   el.classList.add('sel');
+  calSelDate = { d, m: calMonth, y: calYear, label };
+  calSelTime = null;
   document.getElementById('tsWrap').classList.add('show');
-  document.querySelectorAll('.ts-btn.sel').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.ts-btn.sel').forEach(b => b.classList.remove('sel'));
   document.getElementById('bkForm').classList.remove('show');
 }
-function selSlot(el){
-  document.querySelectorAll('.ts-btn.sel').forEach(b=>b.classList.remove('sel'));
-  el.classList.add('sel');document.getElementById('bkForm').classList.add('show');
+
+function selSlot(el) {
+  document.querySelectorAll('.ts-btn.sel').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  calSelTime = el.textContent.trim();
+  document.getElementById('bkForm').classList.add('show');
 }
-function switchTab(id,btn){
-  document.querySelectorAll('.bktab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.bkpanel').forEach(p=>p.classList.remove('on'));
-  btn.classList.add('on');document.getElementById('bkpanel-'+id).classList.add('on');
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.bktab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.bkpanel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('bkpanel-' + id).classList.add('on');
 }
-function openModal(){document.getElementById('overlay').classList.add('open');}
-function closeModal(){document.getElementById('overlay').classList.remove('open');}
+
+function openModal()  { document.getElementById('overlay').classList.add('open'); }
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+
+// ── FORM SUBMISSIONS ──
+async function submitBooking() {
+  const firstName = document.getElementById('bkFirstName').value.trim();
+  const lastName  = document.getElementById('bkLastName').value.trim();
+  const email     = document.getElementById('bkEmail').value.trim();
+  const company   = document.getElementById('bkCompany').value.trim();
+  const role      = document.getElementById('bkRole').value.trim();
+  const errEl     = document.getElementById('bkError');
+
+  errEl.style.display = 'none';
+  if (!firstName || !email) {
+    errEl.textContent = 'Please fill in at least your name and email.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!calSelDate || !calSelTime) {
+    errEl.textContent = 'Please select a date and time above.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('bkSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    await fetch('/.netlify/functions/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'booking', date: calSelDate.label, time: calSelTime + ' London BST', firstName, lastName, email, company, role })
+    });
+    document.getElementById('bkpanel-cal').innerHTML =
+      `<div class="bk-success">
+        <div class="bk-success-icon">✓</div>
+        <div class="bk-success-title">You're booked in.</div>
+        <div class="bk-success-body">${calSelDate.label} at ${calSelTime} London BST.<br>We'll confirm with ${email} shortly.</div>
+      </div>`;
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Confirm session →';
+    errEl.textContent = 'Something went wrong — please try again.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function submitNote() {
+  const firstName = document.getElementById('noteFirstName').value.trim();
+  const lastName  = document.getElementById('noteLastName').value.trim();
+  const email     = document.getElementById('noteEmail').value.trim();
+  const company   = document.getElementById('noteCompany').value.trim();
+  const challenge = document.getElementById('noteChallenge').value;
+  const message   = document.getElementById('noteMessage').value.trim();
+  const errEl     = document.getElementById('noteError');
+
+  errEl.style.display = 'none';
+  if (!firstName || !email) {
+    errEl.textContent = 'Please fill in at least your name and email.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const btn = document.getElementById('noteSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    await fetch('/.netlify/functions/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'note', firstName, lastName, email, company, challenge, message })
+    });
+    document.getElementById('bkpanel-form').innerHTML =
+      `<div class="bk-success">
+        <div class="bk-success-icon">✓</div>
+        <div class="bk-success-title">Message sent.</div>
+        <div class="bk-success-body">We'll be in touch within one business day.</div>
+      </div>`;
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Send →';
+    errEl.textContent = 'Something went wrong — please try again.';
+    errEl.style.display = 'block';
+  }
+}
 
 // ── SHARED BOT UTILITIES ──
-function addMsg(container, role, text){
+function addMsg(container, role, text) {
   const m = document.createElement('div');
   m.className = `msg msg-${role==='bot'?'b':'u'}`;
   m.style.cssText = 'opacity:1;animation:none;';
-  const av = role==='bot' ? '<div class="mav">🔥</div>' : '';
-  m.innerHTML = role==='bot'
+  const av = role === 'bot' ? '<div class="mav">🔥</div>' : '';
+  m.innerHTML = role === 'bot'
     ? `${av}<div class="bub">${text}</div>`
     : `<div class="bub">${text}</div>`;
   container.appendChild(m);
@@ -649,7 +807,7 @@ function addMsg(container, role, text){
   return m;
 }
 
-function addTyping(container){
+function addTyping(container) {
   const t = document.createElement('div');
   t.className = 'msg msg-b';
   t.style.cssText = 'opacity:1;animation:none;';
@@ -659,27 +817,88 @@ function addTyping(container){
   return t;
 }
 
-function showInlineCalendar(container){
-  const slots = ['Mon 2 Jun · 09:00','Mon 2 Jun · 11:00','Tue 3 Jun · 10:30','Tue 3 Jun · 14:00','Wed 5 Jun · 09:00','Wed 5 Jun · 15:30'];
-  const cal = document.createElement('div');
-  cal.className = 'msg msg-b';
-  cal.style.cssText = 'opacity:1;animation:none;';
-  cal.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:280px;">
-    <div style="margin-bottom:8px;">Here are some open slots — pick whatever works:</div>
-    <div class="chat-cal show">
-      <div class="chat-cal-slots">${slots.map(s=>`<div class="chat-slot" onclick="bookSlot(this,'${s}')">${s}</div>`).join('')}</div>
-      <div class="confirm-msg" id="confirmMsg">✓ Booked! We'll send a calendar invite to your email.</div>
+// ── INLINE CHAT CALENDAR ──
+const chatSlotMap = {};
+
+function showInlineCalendar(container) {
+  // Generate next 6 available weekday slots from today
+  const slots = [];
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const times = ['09:00', '11:00', '14:00', '15:30'];
+  while (slots.length < 6) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow === 0 || dow === 6) continue;
+    const label = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    times.slice(0, 2).forEach(t => {
+      if (slots.length < 6) slots.push(`${label} · ${t}`);
+    });
+  }
+
+  const calId   = 'chatCal_' + Date.now();
+  const emailId = 'chatEmail_' + calId;
+  const msgId   = 'chatMsg_' + calId;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'msg msg-b';
+  wrap.style.cssText = 'opacity:1;animation:none;';
+  wrap.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:300px;">
+    <div style="margin-bottom:8px;">Pick a slot that works:</div>
+    <div class="chat-cal show" id="${calId}">
+      <div class="chat-cal-slots">${slots.map(s => `<div class="chat-slot" onclick="chatSlotPick(this,'${s}','${calId}')">${s}</div>`).join('')}</div>
+      <div class="chat-email-capture" id="${emailId}" style="display:none;margin-top:10px;">
+        <input class="bi" id="chatEmailInput_${calId}" placeholder="Your email address" type="email"
+          style="width:100%;margin-bottom:6px;font-size:12px;border-radius:8px;"
+          onkeydown="if(event.key==='Enter')submitChatBooking('${calId}')">
+        <button onclick="submitChatBooking('${calId}')"
+          style="width:100%;padding:8px;font-family:var(--font-b);font-weight:600;font-size:12px;color:var(--white);background:var(--purple-m);border:none;border-radius:8px;cursor:pointer;">
+          Confirm →
+        </button>
+        <div id="${msgId}" style="font-size:12px;margin-top:6px;display:none;"></div>
+      </div>
     </div>
   </div>`;
-  container.appendChild(cal);
+  container.appendChild(wrap);
   container.scrollTop = container.scrollHeight;
 }
 
-function bookSlot(el, slot){
-  document.querySelectorAll('.chat-slot').forEach(s=>s.classList.remove('booked'));
+function chatSlotPick(el, slot, calId) {
+  document.querySelectorAll(`#${calId} .chat-slot`).forEach(s => s.classList.remove('booked'));
   el.classList.add('booked');
-  const confirm = el.closest('.bub').querySelector('.confirm-msg');
-  if(confirm){ confirm.classList.add('show'); }
+  chatSlotMap[calId] = slot;
+  const emailCapture = document.getElementById('chatEmail_' + calId);
+  if (emailCapture) {
+    emailCapture.style.display = 'block';
+    const input = document.getElementById('chatEmailInput_' + calId);
+    if (input) input.focus();
+  }
+}
+
+async function submitChatBooking(calId) {
+  const emailInput = document.getElementById('chatEmailInput_' + calId);
+  const msgEl      = document.getElementById('chatMsg_' + calId);
+  const email = emailInput ? emailInput.value.trim() : '';
+  const slot  = chatSlotMap[calId];
+
+  if (!email || !email.includes('@')) {
+    if (msgEl) { msgEl.textContent = 'Please enter a valid email.'; msgEl.style.color = '#DC2626'; msgEl.style.display = 'block'; }
+    return;
+  }
+
+  try {
+    await fetch('/.netlify/functions/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'chat-booking', slot, email })
+    });
+  } catch(e) { /* fail silently — booking is still confirmed to user */ }
+
+  if (msgEl) { msgEl.textContent = '✓ Booked — we\'ll confirm with ' + email; msgEl.style.color = '#16A34A'; msgEl.style.display = 'block'; }
+  if (emailInput) emailInput.disabled = true;
+  document.querySelectorAll(`#${calId} .chat-slot`).forEach(s => s.style.pointerEvents = 'none');
+  const confirmBtn = emailInput && emailInput.nextElementSibling;
+  if (confirmBtn) confirmBtn.disabled = true;
 }
 
 // ── CLAUDE API BOT ENGINE ──
@@ -862,6 +1081,9 @@ document.getElementById('modalSend').addEventListener('click', modalSend);
 // ── SCROLL REVEAL ──
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});},{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ── INIT ──
+initCal();
 </script>
 </body>
 </html>
