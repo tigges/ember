@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ember — AI Player Support for iGaming</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swapdisplay=swap" rel="stylesheet">
+<style>
+:root{
+  --white:#FFFFFF;--off:#F0EFF4;--ink:#1A1A1A;--ink2:#3A3A3A;
+  --muted:#6B6B80;--muted2:#9999AA;--border:#E2E1EA;
+  --purple-l:#8B7DB5;--purple-m:#5B4B8A;--purple-d:#3D3666;--purple-xd:#2A2548;
+  --grad-a:#6B2D8B;--grad-b:#C41E6B;--grad-c:#E8175D;
+  --font-d:'Outfit',sans-serif;--font-b:'Outfit',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--white);color:var(--ink);font-family:var(--font-b);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:600;background:var(--white);border-bottom:1px solid var(--border);}
+.nav-grad{height:4px;background:linear-gradient(to right,var(--grad-a),var(--grad-b),var(--grad-c));}
+.nav-inner{height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 60px;}
+.nav-logo{font-family:var(--font-d);font-weight:600;font-size:22px;color:var(--ink);text-decoration:none;}
+.nav-logo span{color:var(--grad-b);}
+.nav-links{display:flex;align-items:center;gap:36px;}
+.nl{font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nl:hover{color:var(--ink);}
+.nav-cta{font-weight:600;font-size:13px;color:var(--white);background:var(--ink);padding:10px 24px;border-radius:40px;text-decoration:none;transition:background .2s;}
+.nav-cta:hover{background:var(--purple-d);}
+
+.hero{min-height:100vh;display:grid;grid-template-columns:1fr 460px;gap:60px;align-items:center;padding:110px 60px 80px;position:relative;overflow:hidden;}
+.hero-bg{position:absolute;top:0;right:0;width:52%;height:100%;background:var(--off);clip-path:polygon(6% 0,100% 0,100% 100%,0% 100%);pointer-events:none;z-index:0;}
+.hero-l,.hero-r{position:relative;z-index:1;}
+
+.tag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--grad-b);margin-bottom:20px;opacity:0;animation:up .5s .1s forwards;}
+.tag::before{content:'';width:20px;height:2px;background:linear-gradient(to right,var(--grad-a),var(--grad-b));border-radius:2px;}
+h1{font-family:var(--font-d);font-weight:300;font-size:clamp(36px,4vw,56px);line-height:1.07;letter-spacing:-.5px;margin-bottom:22px;opacity:0;animation:up .5s .2s forwards;}
+h1 em{font-style:italic;color:var(--purple-m);}
+.hero-sub{font-size:17px;font-weight:300;color:var(--muted);line-height:1.75;max-width:460px;margin-bottom:36px;opacity:0;animation:up .5s .3s forwards;}
+.hero-sub strong{color:var(--ink2);font-weight:500;}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;opacity:0;animation:up .5s .4s forwards;}
+.btn-dark{font-weight:600;font-size:14px;color:var(--white);background:var(--ink);padding:14px 28px;border-radius:40px;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .2s;}
+.btn-dark:hover{background:var(--purple-d);transform:translateY(-1px);}
+.btn-ghost{font-weight:600;font-size:14px;color:var(--ink);background:transparent;padding:14px 28px;border-radius:40px;border:1.5px solid var(--border);cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s;}
+.btn-ghost:hover{border-color:var(--purple-m);color:var(--purple-m);}
+.hero-note{font-size:12px;color:var(--muted2);margin-top:12px;display:flex;align-items:center;gap:6px;}
+.hero-note::before{content:'';width:8px;height:8px;border-radius:50%;background:#22C55E;flex-shrink:0;}
+.hero-stats{display:flex;margin-top:52px;padding-top:36px;border-top:1px solid var(--border);opacity:0;animation:up .5s .5s forwards;}
+.hs{flex:1;padding-right:24px;border-right:1px solid var(--border);}
+.hs:last-child{border-right:none;padding-right:0;padding-left:24px;}
+.hs:not(:first-child):not(:last-child){padding:0 24px;}
+.hs-num{font-family:var(--font-d);font-weight:300;font-size:28px;line-height:1;margin-bottom:4px;}
+.hs-num span{color:var(--grad-b);}
+.hs-lbl{font-size:12px;color:var(--muted);line-height:1.4;}
+
+.bot-card{background:var(--white);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(58,54,102,.12),0 4px 16px rgba(0,0,0,.06);opacity:0;animation:up .6s .4s forwards;}
+.bot-hdr{background:var(--purple-d);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.bot-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--grad-a),var(--grad-b));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.bot-hinfo{flex:1;}
+.bot-hname{font-weight:600;font-size:13px;color:var(--white);display:flex;align-items:center;gap:8px;}
+.bot-badge{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--purple-d);background:rgba(255,255,255,.9);padding:2px 7px;border-radius:4px;}
+.bot-status{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;display:flex;align-items:center;gap:5px;}
+.sdot{width:6px;height:6px;border-radius:50%;background:#4ADE80;animation:pulse 2s infinite;}
+.bot-msgs{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:250px;max-height:300px;overflow-y:auto;background:var(--off);}
+.bot-msgs::-webkit-scrollbar{width:3px;}
+.bot-msgs::-webkit-scrollbar-thumb{background:var(--border);}
+.msg{display:flex;gap:8px;align-items:flex-end;}
+.msg-b{flex-direction:row;}
+.msg-u{flex-direction:row-reverse;}
+.mav{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--grad-a),var(--grad-b));display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.bub{max-width:260px;padding:11px 14px;font-size:13px;line-height:1.55;border-radius:14px;}
+.msg-b .bub{background:var(--white);border:1px solid var(--border);border-bottom-left-radius:3px;color:var(--ink2);}
+.msg-u .bub{background:var(--purple-m);border-bottom-right-radius:3px;color:var(--white);}
+/* inline calendar in chat */
+.chat-cal{margin-top:12px;background:var(--off);border:1px solid var(--border);border-radius:12px;padding:14px;display:none;}
+.chat-cal.show{display:block;}
+.chat-cal-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.chat-cal-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.chat-slot{padding:7px 6px;text-align:center;font-size:12px;font-weight:600;color:var(--purple-m);background:white;border:1px solid rgba(91,75,138,.2);border-radius:7px;cursor:pointer;transition:all .12s;}
+.chat-slot:hover{background:var(--purple-m);color:white;border-color:var(--purple-m);}
+.chat-slot.booked{background:var(--purple-m);color:white;border-color:var(--purple-m);pointer-events:none;}
+.confirm-msg{font-size:12px;color:#16A34A;font-weight:500;margin-top:8px;display:none;}
+.confirm-msg.show{display:block;}
+.typing-bub{display:flex;gap:4px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:14px;border-bottom-left-radius:3px;width:fit-content;}
+.td{width:5px;height:5px;border-radius:50%;background:var(--muted2);}
+.td:nth-child(1){animation:tdot 1.2s 0s infinite;}
+.td:nth-child(2){animation:tdot 1.2s .2s infinite;}
+.td:nth-child(3){animation:tdot 1.2s .4s infinite;}
+.bot-input-row{padding:12px 16px;border-top:1px solid var(--border);background:var(--white);display:flex;gap:8px;}
+.bi{flex:1;background:var(--off);border:1px solid var(--border);border-radius:40px;padding:9px 16px;font-family:var(--font-b);font-size:12px;color:var(--ink);outline:none;transition:border-color .2s;}
+.bi:focus{border-color:var(--purple-m);}
+.bi::placeholder{color:var(--muted2);}
+.bsend{width:32px;height:32px;border-radius:50%;background:var(--purple-m);border:none;cursor:pointer;color:var(--white);font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.bsend:hover{background:var(--purple-d);}
+.msg{opacity:0;animation:up .4s forwards;}
+.msg:nth-child(1){animation-delay:1s;}
+.msg:nth-child(2){animation-delay:2.1s;}
+.msg:nth-child(3){animation-delay:3.2s;}
+
+.proof{background:var(--purple-d);padding:22px 60px;display:flex;align-items:center;gap:56px;}
+.proof-lbl{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.4);white-space:nowrap;flex-shrink:0;}
+.proof-items{display:flex;align-items:center;flex:1;justify-content:space-between;}
+.proof-item{text-align:center;}
+.proof-num{font-family:var(--font-d);font-size:20px;color:var(--white);}
+.proof-desc{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;}
+
+section{padding:96px 60px;}
+.s-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--grad-b);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.s-label::before{content:'';width:16px;height:2px;background:linear-gradient(to right,var(--grad-a),var(--grad-b));border-radius:2px;}
+h2{font-family:var(--font-d);font-weight:300;font-size:clamp(28px,3.2vw,44px);line-height:1.1;letter-spacing:-.5px;margin-bottom:14px;}
+h2 em{font-style:italic;color:var(--purple-m);}
+.s-body{font-size:16px;font-weight:300;color:var(--muted);max-width:520px;line-height:1.75;}
+
+.problem{background:var(--purple-d);padding:96px 60px;}
+.problem .s-label{color:rgba(255,255,255,.45);}
+.problem .s-label::before{background:rgba(255,255,255,.25);}
+.problem h2{color:var(--white);max-width:700px;margin-bottom:56px;}
+.problem h2 em{color:rgba(255,255,255,.45);}
+.prob-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.08);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.08);}
+.prob-card{background:rgba(255,255,255,.04);padding:36px 28px;transition:background .2s;}
+.prob-card:hover{background:rgba(255,255,255,.09);}
+.prob-n{font-family:var(--font-d);font-weight:200;font-size:44px;color:rgba(255,255,255,.1);line-height:1;margin-bottom:16px;}
+.prob-title{font-weight:600;font-size:17px;color:var(--white);margin-bottom:10px;}
+.prob-body{font-size:14px;color:rgba(255,255,255,.5);line-height:1.65;}
+.prob-body strong{color:rgba(255,255,255,.85);font-weight:500;}
+
+.product-sec{background:var(--off);padding:96px 60px;}
+.product-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.mock-wrap{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 16px 48px rgba(58,54,102,.1);}
+.mock-bar{background:var(--purple-xd);padding:12px 18px;display:flex;align-items:center;gap:8px;}
+.mock-dots{display:flex;gap:5px;}
+.mock-dot{width:10px;height:10px;border-radius:50%;}
+.mock-label{font-size:12px;color:rgba(255,255,255,.4);margin-left:8px;}
+.mock-body{padding:20px;}
+.conv-row{display:flex;gap:10px;margin-bottom:16px;}
+.conv-av{width:28px;height:28px;border-radius:8px;background:var(--off);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;border:1px solid var(--border);}
+.conv-av.ai-av{background:linear-gradient(135deg,var(--grad-a),var(--grad-b));}
+.conv-col{flex:1;}
+.conv-name{font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.conv-msg{font-size:13px;color:var(--ink2);background:var(--off);padding:10px 13px;border-radius:10px;border-bottom-left-radius:3px;line-height:1.5;border:1px solid var(--border);}
+.conv-msg.ai{background:var(--purple-d);color:var(--white);border:none;border-bottom-left-radius:10px;}
+.resolved-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#16A34A;background:#F0FDF4;border:1px solid #BBF7D0;padding:3px 10px;border-radius:20px;margin-top:8px;}
+.res-bar{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:13px 16px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;}
+.res-lbl{font-size:12px;color:var(--muted);}
+.res-badge{font-size:11px;font-weight:700;color:#16A34A;background:#F0FDF4;border:1px solid #BBF7D0;padding:3px 10px;border-radius:20px;}
+
+.usecases{background:var(--white);padding:96px 60px;}
+.uc-header{max-width:600px;margin-bottom:48px;}
+.bonus-flag{display:inline-flex;align-items:center;gap:14px;background:linear-gradient(135deg,rgba(107,45,139,.06),rgba(196,30,107,.06));border:1px solid rgba(196,30,107,.15);border-radius:12px;padding:14px 20px;margin-bottom:44px;}
+.bonus-pct{font-family:var(--font-d);font-size:28px;background:linear-gradient(135deg,var(--grad-a),var(--grad-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.bonus-text{font-size:14px;color:var(--ink2);line-height:1.4;}
+.bonus-text strong{font-weight:600;}
+.uc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.uc-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px 24px;transition:all .2s;position:relative;overflow:hidden;}
+.uc-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--grad-a),var(--grad-b));transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.uc-card:hover{border-color:transparent;box-shadow:0 8px 28px rgba(91,75,138,.12);transform:translateY(-2px);}
+.uc-card:hover::after,.uc-card.top::after{transform:scaleX(1);}
+.uc-card.top{border-color:rgba(196,30,107,.2);}
+.vol{position:absolute;top:16px;right:16px;font-size:10px;font-weight:700;color:var(--grad-b);background:rgba(196,30,107,.07);border:1px solid rgba(196,30,107,.18);padding:2px 8px;border-radius:20px;}
+.uc-icon{font-size:28px;margin-bottom:14px;display:block;}
+.uc-title{font-weight:600;font-size:15px;margin-bottom:8px;}
+.uc-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.uc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px;}
+.uc-tag{font-size:10px;font-weight:600;color:var(--purple-m);background:rgba(91,75,138,.06);border:1px solid rgba(91,75,138,.14);padding:3px 9px;border-radius:20px;}
+
+.hiw{background:var(--purple-m);padding:96px 60px;}
+.hiw .s-label{color:rgba(255,255,255,.45);}
+.hiw .s-label::before{background:rgba(255,255,255,.25);}
+.hiw h2{color:var(--white);margin-bottom:8px;}
+.hiw h2 em{color:rgba(255,255,255,.45);}
+.hiw .s-body{color:rgba(255,255,255,.55);margin-bottom:52px;}
+.hiw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.1);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1);}
+.hiw-step{background:rgba(255,255,255,.05);padding:32px 28px;transition:background .2s;}
+.hiw-step:hover{background:rgba(255,255,255,.1);}
+.step-n{font-family:var(--font-d);font-weight:200;font-size:44px;color:rgba(255,255,255,.1);line-height:1;margin-bottom:16px;}
+.step-title{font-weight:600;font-size:16px;color:var(--white);margin-bottom:8px;}
+.step-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.65;}
+
+.numbers{background:var(--white);padding:96px 60px;}
+.nums-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.num-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.num-card{background:var(--off);padding:36px 28px;transition:background .2s;}
+.num-card:hover{background:var(--white);}
+.num-big{font-family:var(--font-d);font-weight:300;font-size:40px;line-height:1;margin-bottom:8px;}
+.num-big span{background:linear-gradient(135deg,var(--grad-a),var(--grad-b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.num-lbl{font-size:13px;color:var(--muted);line-height:1.4;}
+
+.booking{background:linear-gradient(135deg,var(--grad-a) 0%,var(--grad-b) 55%,var(--grad-c) 100%);padding:96px 60px;}
+.bk-inner{display:grid;grid-template-columns:1fr 480px;gap:80px;align-items:start;}
+.booking .s-label{color:rgba(255,255,255,.45);}
+.booking .s-label::before{background:rgba(255,255,255,.25);}
+.booking h2{color:var(--white);}
+.booking h2 em{color:rgba(255,255,255,.5);}
+.booking p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:16px;max-width:380px;font-weight:300;}
+.bk-card{background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.2);}
+.bk-tabs{display:flex;background:var(--off);border-bottom:1px solid var(--border);}
+.bktab{flex:1;padding:14px;text-align:center;font-weight:600;font-size:12px;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;}
+.bktab.on{color:var(--purple-m);background:var(--white);border-bottom-color:var(--purple-m);}
+.bktab:hover:not(.on){color:var(--ink);}
+.bkpanel{padding:24px;display:none;}
+.bkpanel.on{display:block;}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.cal-mo{font-weight:600;font-size:14px;}
+.cal-nav-btns{display:flex;gap:6px;}
+.cal-nb{width:26px;height:26px;border-radius:6px;border:1px solid var(--border);background:var(--off);color:var(--muted);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.cal-nb:hover{border-color:var(--purple-m);color:var(--purple-m);}
+.cal-wds{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px;}
+.cal-wd{text-align:center;font-size:10px;font-weight:600;color:var(--muted2);letter-spacing:.5px;padding:3px 0;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-d{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all .12s;color:var(--ink2);}
+.cal-d.empty{cursor:default;}
+.cal-d.past{color:var(--muted2);opacity:.35;cursor:default;}
+.cal-d.avail:hover{background:rgba(91,75,138,.08);border-color:var(--purple-m);color:var(--purple-m);}
+.cal-d.sel{background:var(--purple-m);color:var(--white);font-weight:600;}
+.ts-wrap{margin-top:16px;display:none;}
+.ts-wrap.show{display:block;}
+.ts-lbl{font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:500;}
+.ts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.ts-btn{padding:8px;text-align:center;font-size:12px;font-weight:600;color:var(--purple-m);background:rgba(91,75,138,.06);border:1px solid rgba(91,75,138,.14);border-radius:8px;cursor:pointer;transition:all .12s;}
+.ts-btn:hover{background:rgba(91,75,138,.14);border-color:var(--purple-m);}
+.ts-btn.sel{background:var(--purple-m);color:var(--white);border-color:var(--purple-m);}
+.bk-form{margin-top:16px;display:none;}
+.bk-form.show{display:block;}
+.fnote{font-size:11px;color:var(--muted);margin-bottom:12px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.fi{background:var(--off);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-family:var(--font-b);font-size:12px;color:var(--ink);outline:none;width:100%;transition:border-color .2s;}
+.fi:focus{border-color:var(--purple-m);}
+.fi::placeholder{color:var(--muted2);}
+select.fi{appearance:none;cursor:pointer;}
+.sub-btn{width:100%;margin-top:12px;padding:13px;font-family:var(--font-b);font-weight:600;font-size:13px;color:var(--white);background:var(--ink);border:none;border-radius:40px;cursor:pointer;transition:all .2s;}
+.sub-btn:hover{background:var(--purple-d);}
+
+.overlay{display:none;position:fixed;inset:0;z-index:900;background:rgba(26,26,26,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:24px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.22);animation:popIn .25s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(6px);}to{opacity:1;transform:none;}}
+.modal-bar{background:var(--purple-d);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.modal-close{margin-left:auto;background:rgba(255,255,255,.12);border:none;color:var(--white);font-size:16px;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.modal-close:hover{background:rgba(255,255,255,.22);}
+.modal-msgs{padding:18px;display:flex;flex-direction:column;gap:12px;height:360px;overflow-y:auto;background:var(--off);}
+.modal-msgs::-webkit-scrollbar{width:3px;}
+.modal-msgs::-webkit-scrollbar-thumb{background:var(--border);}
+.modal-input-bar{padding:12px 16px;border-top:1px solid var(--border);background:var(--white);display:flex;gap:8px;}
+
+.sticky{position:fixed;bottom:28px;right:28px;z-index:500;}
+.sticky-btn{width:56px;height:56px;border-radius:50%;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 8px 24px rgba(26,26,26,.28);transition:all .2s;animation:floatY 3s ease-in-out infinite;}
+.sticky-btn:hover{background:var(--purple-d);transform:scale(1.08);}
+.sticky-tip{position:absolute;bottom:66px;right:0;white-space:nowrap;background:var(--ink);color:var(--white);border-radius:10px;padding:8px 14px;font-size:12px;font-weight:500;opacity:0;transform:translateY(4px);transition:all .2s;pointer-events:none;}
+.sticky:hover .sticky-tip{opacity:1;transform:translateY(0);}
+
+footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.foot-brand{font-family:var(--font-d);font-size:18px;color:var(--white);}
+.foot-brand span{color:var(--grad-b);}
+.foot-links{display:flex;gap:24px;}
+.foot-links a{font-size:12px;color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s;}
+.foot-links a:hover{color:var(--white);}
+
+@keyframes up{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+@keyframes tdot{0%,60%,100%{opacity:.3;transform:translateY(0);}30%{opacity:1;transform:translateY(-2px);}}
+@keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .55s,transform .55s;}
+.reveal.in{opacity:1;transform:none;}
+
+@media(max-width:960px){
+  .nav-inner{padding:0 20px;}
+  .hero{grid-template-columns:1fr;padding:110px 20px 60px;}
+  .hero-r{display:none;}
+  section,.problem,.product-sec,.usecases,.hiw,.numbers,.booking{padding:70px 20px;}
+  .proof{padding:16px 20px;flex-direction:column;gap:16px;align-items:flex-start;}
+  .proof-items{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;}
+  .product-inner,.nums-inner,.bk-inner{grid-template-columns:1fr;gap:40px;}
+  .uc-grid,.prob-grid,.hiw-grid{grid-template-columns:1fr;}
+  .num-grid{grid-template-columns:1fr 1fr;}
+  footer{padding:24px 20px;flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-grad"></div>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">Ember<span>.</span></a>
+    <div class="nav-links">
+      <a href="#usecases" class="nl">Use Cases</a>
+      <a href="#how" class="nl">How It Works</a>
+      <a href="#booking" class="nl">Contact</a>
+      <a href="#booking" class="nav-cta">Book a demo</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-l">
+    <div class="tag">AI Player Support · iGaming</div>
+    <h1>The AI player support<br>built for <em>iGaming</em><br>operators.</h1>
+    <p class="hero-sub"><strong>60% of your support volume is bonus-related.</strong> Ember resolves it — with the empathy and precision your players actually need, before it reaches your team.</p>
+    <div class="cta-row">
+      <a href="#booking" class="btn-dark">📅 Book a demo</a>
+      <button class="btn-ghost" onclick="openModal()">💬 Talk to Ember first</button>
+    </div>
+    <div class="hero-note">No slides. No deck. Just Ember, live, on your actual use cases.</div>
+    <div class="hero-stats">
+      <div class="hs"><div class="hs-num">25–30<span>%</span></div><div class="hs-lbl">automated from<br>day one</div></div>
+      <div class="hs"><div class="hs-num">&lt;10<span>s</span></div><div class="hs-lbl">first response<br>time</div></div>
+      <div class="hs"><div class="hs-num">24<span>/7</span></div><div class="hs-lbl">multilingual<br>coverage</div></div>
+      <div class="hs"><div class="hs-num">40<span>+</span></div><div class="hs-lbl">languages<br>supported</div></div>
+    </div>
+  </div>
+  <div class="hero-r">
+    <div class="bot-card">
+      <div class="bot-hdr">
+        <div class="bot-av">🔥</div>
+        <div class="bot-hinfo">
+          <div class="bot-hname">Ember <span class="bot-badge">iGaming</span></div>
+          <div class="bot-status"><div class="sdot"></div>Online · avg 8s response</div>
+        </div>
+      </div>
+      <div class="bot-msgs" id="heroBotMsgs">
+        <div class="msg msg-b">
+          <div class="mav">🔥</div>
+          <div class="bub">Quick question — what's eating your support team's time right now?</div>
+        </div>
+      </div>
+      <div class="bot-input-row">
+        <input class="bi" id="heroIn" placeholder="Type a message..." onkeydown="if(event.key==='Enter')heroSend()">
+        <button class="bsend" id="heroSend">↑</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="proof">
+  <div class="proof-lbl">Enterprise-grade</div>
+  <div class="proof-items">
+    <div class="proof-item"><div class="proof-num">Global</div><div class="proof-desc">delivery infrastructure</div></div>
+    <div class="proof-item"><div class="proof-num">40+</div><div class="proof-desc">languages natively</div></div>
+    <div class="proof-item"><div class="proof-num">MGA</div><div class="proof-desc">compliant delivery</div></div>
+    <div class="proof-item"><div class="proof-num">24/7</div><div class="proof-desc">always on coverage</div></div>
+    <div class="proof-item"><div class="proof-num">Weeks</div><div class="proof-desc">not months to go live</div></div>
+  </div>
+</div>
+
+<section class="problem">
+  <div class="s-label">The opportunity</div>
+  <h2>What does AI and CX automation enable<br>you to do, that you <em>cannot do today?</em></h2>
+  <div class="prob-grid reveal">
+    <div class="prob-card">
+      <div class="prob-n">01</div>
+      <div class="prob-title">Hold 10 live promotions simultaneously.</div>
+      <div class="prob-body">No agent can hold your full promo rule set in their head. <strong>Ember can.</strong> Every wager condition, every T&C, every edge case — answered correctly, every time.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-n">02</div>
+      <div class="prob-title">Respond in any language, at 3am.</div>
+      <div class="prob-body">No rota. No headcount. No degraded service outside office hours. <strong>Ember is always on</strong> — in the language your player writes in, the moment they need it.</div>
+    </div>
+    <div class="prob-card">
+      <div class="prob-n">03</div>
+      <div class="prob-title">Start automating from day one.</div>
+      <div class="prob-body">Begin with <strong>25–30% automation from day one.</strong> Every interaction teaches Ember your operation — the number grows as it learns your players and your promos.</div>
+    </div>
+  </div>
+</section>
+
+<section class="product-sec">
+  <div class="product-inner">
+    <div class="reveal">
+      <div class="s-label">Ember in action</div>
+      <h2>A bonus dispute.<br><em>Resolved in seconds.</em></h2>
+      <p class="s-body" style="margin-bottom:20px;">This is Ember handling your most common query type — in real time, full promo context, zero agent involvement.</p>
+      <p class="s-body">The player never waits. Your agent never sees the ticket. Your CSAT goes up.</p>
+    </div>
+    <div class="mock-wrap reveal">
+      <div class="mock-bar">
+        <div class="mock-dots">
+          <div class="mock-dot" style="background:#FF5F57;"></div>
+          <div class="mock-dot" style="background:#FFBD2E;"></div>
+          <div class="mock-dot" style="background:#28CA42;"></div>
+        </div>
+        <div class="mock-label">Ember · Live conversation</div>
+      </div>
+      <div class="mock-body">
+        <div class="conv-row">
+          <div class="conv-av">👤</div>
+          <div class="conv-col">
+            <div class="conv-name">Player</div>
+            <div class="conv-msg">Hey my wager requirement says I still need €400 to go but I've been playing for hours. Something doesn't look right</div>
+          </div>
+        </div>
+        <div class="conv-row">
+          <div class="conv-av ai-av">🔥</div>
+          <div class="conv-col">
+            <div class="conv-name">Ember</div>
+            <div class="conv-msg ai">I can see that — let me check your bonus right now. You're on the Welcome Package with a 35x wagering requirement on a €50 bonus. Only slots count at 100% — table games count at 10%.<br><br>If you've been playing table games, that explains the slower progress. You're currently at €2,240 of €2,450 — 91% of the way there. You need around €210 more in slot wagering.</div>
+            <div class="resolved-tag">✓ Resolved without escalation</div>
+          </div>
+        </div>
+        <div class="res-bar">
+          <div class="res-lbl">Resolution time</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:13px;font-weight:600;color:var(--ink);">9 seconds</span>
+            <div class="res-badge">No agent needed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="usecases" id="usecases">
+  <div class="uc-header reveal">
+    <div class="s-label">Built for iGaming</div>
+    <h2>Every query your team dreads.<br><em>Ember handles it.</em></h2>
+    <p class="s-body">Trained on the full spectrum of iGaming player support — from high-volume bonus disputes to the compliance edge cases your agents find hardest.</p>
+  </div>
+  <div class="bonus-flag reveal">
+    <div class="bonus-pct">60%</div>
+    <div class="bonus-text">of iGaming support volume is<br><strong>bonus & promotion related. Ember handles all of it.</strong></div>
+  </div>
+  <div class="uc-grid reveal">
+    <div class="uc-card top">
+      <span class="uc-icon">🎁</span>
+      <div class="vol">#1 by volume</div>
+      <div class="uc-title">Bonus & Promotions</div>
+      <div class="uc-desc">Wager disputes, free spin conditions, bonus not arriving, real vs bonus balance. Ember holds your full promo rule set — no agent can do that.</div>
+      <div class="uc-tags"><span class="uc-tag">Wager queries</span><span class="uc-tag">Free spins</span><span class="uc-tag">Promo T&Cs</span><span class="uc-tag">Balance split</span></div>
+    </div>
+    <div class="uc-card">
+      <span class="uc-icon">💸</span>
+      <div class="uc-title">Payments & Withdrawals</div>
+      <div class="uc-desc">ARN lookups, PSP delay explanations, pending withdrawal status — resolved automatically without escalation.</div>
+      <div class="uc-tags"><span class="uc-tag">ARN lookup</span><span class="uc-tag">PSP routing</span><span class="uc-tag">Hold queries</span></div>
+    </div>
+    <div class="uc-card">
+      <span class="uc-icon">🪪</span>
+      <div class="uc-title">KYC & Verification</div>
+      <div class="uc-desc">Document upload guidance, real-time status updates, verification step explanations — no agent touch needed.</div>
+      <div class="uc-tags"><span class="uc-tag">Doc checks</span><span class="uc-tag">Status updates</span><span class="uc-tag">ID verification</span></div>
+    </div>
+    <div class="uc-card">
+      <span class="uc-icon">🔒</span>
+      <div class="uc-title">Responsible Gaming</div>
+      <div class="uc-desc">Self-exclusion, deposit limits, cooling-off periods — handled sensitively with full compliance awareness built in.</div>
+      <div class="uc-tags"><span class="uc-tag">Self-exclusion</span><span class="uc-tag">Deposit limits</span><span class="uc-tag">RG guardrails</span></div>
+    </div>
+    <div class="uc-card">
+      <span class="uc-icon">🌍</span>
+      <div class="uc-title">Multilingual Support</div>
+      <div class="uc-desc">Full EU, DACH, LATAM and APAC coverage. Ember detects and switches language mid-conversation automatically.</div>
+      <div class="uc-tags"><span class="uc-tag">EU languages</span><span class="uc-tag">DACH</span><span class="uc-tag">LATAM</span><span class="uc-tag">Auto-detect</span></div>
+    </div>
+    <div class="uc-card">
+      <span class="uc-icon">🧑‍💼</span>
+      <div class="uc-title">Smart Escalation</div>
+      <div class="uc-desc">When Ember reaches its limit, it hands to a human agent with full context. No re-explanation, no repeat from the player.</div>
+      <div class="uc-tags"><span class="uc-tag">Context handoff</span><span class="uc-tag">VIP routing</span><span class="uc-tag">CSAT logging</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="hiw" id="how">
+  <div class="s-label">Three steps</div>
+  <h2>Simple to deploy.<br><em>Powerful in production.</em></h2>
+  <p class="s-body">Ember is live within weeks. It learns your operation as it goes, and the automation rate grows over time without touching headcount.</p>
+  <div class="hiw-grid reveal">
+    <div class="hiw-step">
+      <div class="step-n">01</div>
+      <div class="step-title">Connect your channels</div>
+      <div class="step-desc">Live chat, WhatsApp, email — Ember plugs into your existing stack. No rip-and-replace. No heavy IT lift. No disruption to current ops.</div>
+    </div>
+    <div class="hiw-step">
+      <div class="step-n">02</div>
+      <div class="step-title">Train on your operation</div>
+      <div class="step-desc">Ember learns your promotions, T&Cs, player base, and tone. The more context, the more it resolves. It gets smarter every day.</div>
+    </div>
+    <div class="hiw-step">
+      <div class="step-n">03</div>
+      <div class="step-title">Resolve, escalate, improve</div>
+      <div class="step-desc">25–30% automated from day one. Every interaction teaches Ember more — the number grows without adding headcount or changing your team.</div>
+    </div>
+  </div>
+</section>
+
+<section class="numbers" id="numbers">
+  <div class="nums-inner">
+    <div class="reveal">
+      <div class="s-label">The numbers</div>
+      <h2>Enterprise-grade.<br><em>iGaming-ready.</em></h2>
+      <p class="s-body">The infrastructure behind Ember means you're not buying a chatbot. You're buying a support operation that scales without adding headcount — and gets smarter over time.</p>
+    </div>
+    <div class="num-grid reveal">
+      <div class="num-card"><div class="num-big">25–30<span>%</span></div><div class="num-lbl">Automated from<br>day one</div></div>
+      <div class="num-card"><div class="num-big">&lt;10<span>s</span></div><div class="num-lbl">First response<br>time</div></div>
+      <div class="num-card"><div class="num-big">40<span>+</span></div><div class="num-lbl">Languages<br>supported</div></div>
+      <div class="num-card"><div class="num-big">Weeks<span>.</span></div><div class="num-lbl">Time to<br>go live</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="booking" id="booking">
+  <div class="bk-inner">
+    <div class="reveal">
+      <div class="s-label">Get started</div>
+      <h2>See <em>Ember live</em><br>in your brand.</h2>
+      <p>30 minutes. Your actual use cases — your promos, your player base, your languages. Not a scripted generic demo.</p>
+      <p>If it fits, we talk scope. If it doesn't, you've lost 30 minutes and nothing else.</p>
+      <p style="margin-top:24px;font-size:13px;color:rgba(255,255,255,.4);">No hard sell. No follow-up spam. Just the product, live.</p>
+    </div>
+    <div class="bk-card reveal">
+      <div class="bk-tabs">
+        <button class="bktab on" onclick="switchTab('cal',this)">📅 Pick a slot</button>
+        <button class="bktab" onclick="switchTab('form',this)">✉️ Send a note</button>
+      </div>
+      <div class="bkpanel on" id="bkpanel-cal">
+        <div class="cal-hdr">
+          <div class="cal-mo">June 2026</div>
+          <div class="cal-nav-btns"><button class="cal-nb">‹</button><button class="cal-nb">›</button></div>
+        </div>
+        <div class="cal-wds"><div class="cal-wd">M</div><div class="cal-wd">T</div><div class="cal-wd">W</div><div class="cal-wd">T</div><div class="cal-wd">F</div><div class="cal-wd">S</div><div class="cal-wd">S</div></div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="ts-wrap" id="tsWrap">
+          <div class="ts-lbl">Available times — London BST</div>
+          <div class="ts-grid">
+            <button class="ts-btn" onclick="selSlot(this)">09:00</button>
+            <button class="ts-btn" onclick="selSlot(this)">10:30</button>
+            <button class="ts-btn" onclick="selSlot(this)">11:00</button>
+            <button class="ts-btn" onclick="selSlot(this)">14:00</button>
+            <button class="ts-btn" onclick="selSlot(this)">15:30</button>
+            <button class="ts-btn" onclick="selSlot(this)">16:00</button>
+          </div>
+        </div>
+        <div class="bk-form" id="bkForm">
+          <div class="fnote">Almost done — just a couple of details:</div>
+          <div class="frow"><input class="fi" placeholder="First name"><input class="fi" placeholder="Last name"></div>
+          <div class="frow"><input class="fi" placeholder="Work email" style="grid-column:1/-1"></div>
+          <div class="frow"><input class="fi" placeholder="Company / Brand"><input class="fi" placeholder="Your role"></div>
+          <button class="sub-btn">Confirm session →</button>
+        </div>
+      </div>
+      <div class="bkpanel" id="bkpanel-form">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.65;">Not ready to book? Drop your details — we'll be in touch within one business day.</div>
+        <div class="frow"><input class="fi" placeholder="First name"><input class="fi" placeholder="Last name"></div>
+        <input class="fi" placeholder="Work email" style="display:block;width:100%;margin-bottom:8px;">
+        <input class="fi" placeholder="Company / iGaming brand" style="display:block;width:100%;margin-bottom:8px;">
+        <select class="fi" style="display:block;width:100%;margin-bottom:8px;color:var(--muted);">
+          <option value="" disabled selected>Biggest support challenge?</option>
+          <option>Bonus & promotion query volume</option>
+          <option>KYC & verification queries</option>
+          <option>Payment & withdrawal issues</option>
+          <option>24/7 multilingual coverage</option>
+          <option>Reducing agent headcount costs</option>
+          <option>Other</option>
+        </select>
+        <textarea class="fi" rows="3" placeholder="Anything else we should know..." style="display:block;width:100%;resize:none;"></textarea>
+        <button class="sub-btn" style="margin-top:12px;">Send →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-brand">Ember<span>.</span></div>
+  <div class="foot-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Other industries</a>
+    <a href="#">hello@ember.ai</a>
+  </div>
+</footer>
+
+<div class="sticky">
+  <div class="sticky-tip">Talk to Ember now</div>
+  <button class="sticky-btn" onclick="openModal()">🔥</button>
+</div>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-bar">
+      <div class="bot-av" style="width:32px;height:32px;border-radius:8px;font-size:14px;">🔥</div>
+      <div>
+        <div class="bot-hname" style="font-size:13px;">Ember <span class="bot-badge">iGaming</span></div>
+        <div class="bot-status"><div class="sdot"></div>Online</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-msgs" id="modalMsgs">
+      <div class="msg msg-b" style="opacity:1;animation:none;">
+        <div class="mav">🔥</div>
+        <div class="bub">Quick question — what's eating your support team's time right now?</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-input-bar">
+      <input class="bi" id="mIn" placeholder="Type a message..." style="flex:1;">
+      <button class="bsend" id="modalSend">↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CALENDAR ──
+(function(){
+  const g=document.getElementById('calGrid');
+  const avail=[2,3,5,9,10,12,16,17,19,23,24,26,30];
+  g.innerHTML='<div class="cal-d empty"></div>';
+  for(let d=1;d<=30;d++){
+    const el=document.createElement('div');
+    el.className='cal-d';el.textContent=d;
+    if(d<2){el.classList.add('past');}
+    else if(avail.includes(d)){el.classList.add('avail');el.onclick=()=>selDay(el);}
+    else{el.classList.add('past');el.style.opacity='.15';}
+    g.appendChild(el);
+  }
+})();
+
+function selDay(el){
+  document.querySelectorAll('.cal-d.sel').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('tsWrap').classList.add('show');
+  document.querySelectorAll('.ts-btn.sel').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('bkForm').classList.remove('show');
+}
+function selSlot(el){
+  document.querySelectorAll('.ts-btn.sel').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');document.getElementById('bkForm').classList.add('show');
+}
+function switchTab(id,btn){
+  document.querySelectorAll('.bktab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.bkpanel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');document.getElementById('bkpanel-'+id).classList.add('on');
+}
+function openModal(){document.getElementById('overlay').classList.add('open');}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+
+// ── SHARED BOT UTILITIES ──
+function addMsg(container, role, text){
+  const m = document.createElement('div');
+  m.className = `msg msg-${role==='bot'?'b':'u'}`;
+  m.style.cssText = 'opacity:1;animation:none;';
+  const av = role==='bot' ? '<div class="mav">🔥</div>' : '';
+  m.innerHTML = role==='bot'
+    ? `${av}<div class="bub">${text}</div>`
+    : `<div class="bub">${text}</div>`;
+  container.appendChild(m);
+  container.scrollTop = container.scrollHeight;
+  return m;
+}
+
+function addTyping(container){
+  const t = document.createElement('div');
+  t.className = 'msg msg-b';
+  t.style.cssText = 'opacity:1;animation:none;';
+  t.innerHTML = '<div class="mav">🔥</div><div class="typing-bub"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  container.appendChild(t);
+  container.scrollTop = container.scrollHeight;
+  return t;
+}
+
+function showInlineCalendar(container){
+  const slots = ['Mon 2 Jun · 09:00','Mon 2 Jun · 11:00','Tue 3 Jun · 10:30','Tue 3 Jun · 14:00','Wed 5 Jun · 09:00','Wed 5 Jun · 15:30'];
+  const cal = document.createElement('div');
+  cal.className = 'msg msg-b';
+  cal.style.cssText = 'opacity:1;animation:none;';
+  cal.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:280px;">
+    <div style="margin-bottom:8px;">Here are some open slots — pick whatever works:</div>
+    <div class="chat-cal show">
+      <div class="chat-cal-slots">${slots.map(s=>`<div class="chat-slot" onclick="bookSlot(this,'${s}')">${s}</div>`).join('')}</div>
+      <div class="confirm-msg" id="confirmMsg">✓ Booked! We'll send a calendar invite to your email.</div>
+    </div>
+  </div>`;
+  container.appendChild(cal);
+  container.scrollTop = container.scrollHeight;
+}
+
+function bookSlot(el, slot){
+  document.querySelectorAll('.chat-slot').forEach(s=>s.classList.remove('booked'));
+  el.classList.add('booked');
+  const confirm = el.closest('.bub').querySelector('.confirm-msg');
+  if(confirm){ confirm.classList.add('show'); }
+}
+
+// ── CLAUDE API BOT ENGINE ──
+const SYSTEM_PROMPT = `You are Ember, an AI assistant for an AI-powered player support product built specifically for iGaming operators.
+
+Your personality:
+- Warm, genuinely curious, and knowledgeable about iGaming
+- You talk like a smart colleague, not a sales rep or a form
+- You never use corporate jargon or buzzwords
+- You're honest — if something isn't a fit, you'd say so
+- You have real opinions and industry knowledge
+
+Your purpose:
+- Have a genuine conversation about the visitor's support challenges
+- Share useful insights about iGaming support (bonus queries, KYC, payments, etc.)
+- Naturally let them know about Ember's capabilities through conversation, not a pitch
+- When the moment feels right, suggest a 30-minute live demo
+- If they want to book, show them calendar slots
+
+Rules:
+- NEVER ask two questions at once
+- NEVER ask about budget, company size, or timeline unless they bring it up
+- NEVER use bullet points or lists in your responses
+- Keep responses short — 2-4 sentences maximum
+- Sound human, not robotic
+- If they want to book immediately, say "Want me to pull up some times?" and if they say yes, reply with exactly: SHOW_CALENDAR
+- If they seem ready to book at any point, gently suggest it but don't push
+- 60% of iGaming support volume is bonus-related — you know this deeply
+- You understand KYC, ARN lookups, PSP routing, wager requirements, free spins, responsible gaming
+
+You are NOT trying to extract information. You are trying to have a real conversation that happens to be useful for both parties.`;
+
+const heroHistory = [];
+const modalHistory = [];
+
+async function callEmber(userMessage, history){
+  history.push({ role: 'user', content: userMessage });
+
+  try {
+    const response = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYSTEM_PROMPT,
+        messages: history
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || "Sorry, I missed that — could you say again?";
+    history.push({ role: 'assistant', content: reply });
+    return reply;
+
+  } catch(e) {
+    return "Something went sideways on my end — try again in a sec?";
+  }
+}
+
+// ── HERO BOT ──
+async function heroSend(){
+  const input = document.getElementById('heroIn');
+  const val = input.value.trim();
+  if(!val) return;
+  const msgs = document.getElementById('heroBotMsgs');
+  addMsg(msgs, 'user', val);
+  input.value = '';
+  input.disabled = true;
+  const t = addTyping(msgs);
+  const reply = await callEmber(val, heroHistory);
+  t.remove();
+  input.disabled = false;
+  if(reply === 'SHOW_CALENDAR'){
+    addMsg(msgs, 'bot', "Great — here are some times that work:");
+    showInlineCalendar(msgs);
+  } else {
+    addMsg(msgs, 'bot', reply);
+    if(reply.toLowerCase().includes('show_calendar')){
+      showInlineCalendar(msgs);
+    }
+  }
+}
+
+// ── MODAL BOT ──
+async function modalSend(){
+  const input = document.getElementById('mIn');
+  const val = input.value.trim();
+  if(!val) return;
+  const msgs = document.getElementById('modalMsgs');
+  addMsg(msgs, 'user', val);
+  input.value = '';
+  input.disabled = true;
+  const t = addTyping(msgs);
+  const reply = await callEmber(val, modalHistory);
+  t.remove();
+  input.disabled = false;
+  if(reply === 'SHOW_CALENDAR' || reply.includes('SHOW_CALENDAR')){
+    addMsg(msgs, 'bot', "Great — here are some open slots:");
+    showInlineCalendar(msgs);
+  } else {
+    addMsg(msgs, 'bot', reply);
+  }
+}
+
+// Enter key handlers
+document.getElementById('heroIn').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); heroSend(); }});
+document.getElementById('mIn').addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); modalSend(); }});
+document.getElementById('heroSend').addEventListener('click', heroSend);
+document.getElementById('modalSend').addEventListener('click', modalSend);
+
+// ── SCROLL REVEAL ──
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
