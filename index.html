@@ -186,13 +186,13 @@ h2 em{font-style:italic;color:var(--purple-m);}
 .num-lbl{font-size:13px;color:var(--muted);line-height:1.4;}
 
 .booking{background:linear-gradient(135deg,var(--grad-a) 0%,var(--grad-b) 55%,var(--grad-c) 100%);padding:96px 60px;}
-.bk-inner{display:grid;grid-template-columns:1fr 480px;gap:80px;align-items:start;}
+.bk-inner{display:grid;grid-template-columns:1fr 580px;gap:80px;align-items:start;}
 .booking .s-label{color:rgba(255,255,255,.45);}
 .booking .s-label::before{background:rgba(255,255,255,.25);}
 .booking h2{color:var(--white);}
 .booking h2 em{color:rgba(255,255,255,.5);}
 .booking p{font-size:15px;color:rgba(255,255,255,.65);line-height:1.75;margin-bottom:16px;max-width:380px;font-weight:300;}
-.bk-card{background:var(--white);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.2);}
+.bk-card{background:var(--white);border-radius:20px;overflow:visible;box-shadow:0 24px 64px rgba(0,0,0,.2);}
 .bk-tabs{display:flex;background:var(--off);border-bottom:1px solid var(--border);}
 .bktab{flex:1;padding:14px;text-align:center;font-weight:600;font-size:12px;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .2s;}
 .bktab.on{color:var(--purple-m);background:var(--white);border-bottom-color:var(--purple-m);}
@@ -522,32 +522,8 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
         <button class="bktab on" onclick="switchTab('cal',this)">📅 Pick a slot</button>
         <button class="bktab" onclick="switchTab('form',this)">✉️ Send a note</button>
       </div>
-      <div class="bkpanel on" id="bkpanel-cal">
-        <div class="cal-hdr">
-          <div class="cal-mo">June 2026</div>
-          <div class="cal-nav-btns"><button class="cal-nb" onclick="prevMonth()">‹</button><button class="cal-nb" onclick="nextMonth()">›</button></div>
-        </div>
-        <div class="cal-wds"><div class="cal-wd">M</div><div class="cal-wd">T</div><div class="cal-wd">W</div><div class="cal-wd">T</div><div class="cal-wd">F</div><div class="cal-wd">S</div><div class="cal-wd">S</div></div>
-        <div class="cal-grid" id="calGrid"></div>
-        <div class="ts-wrap" id="tsWrap">
-          <div class="ts-lbl">Available times — London BST</div>
-          <div class="ts-grid">
-            <button class="ts-btn" onclick="selSlot(this)">09:00</button>
-            <button class="ts-btn" onclick="selSlot(this)">10:30</button>
-            <button class="ts-btn" onclick="selSlot(this)">11:00</button>
-            <button class="ts-btn" onclick="selSlot(this)">14:00</button>
-            <button class="ts-btn" onclick="selSlot(this)">15:30</button>
-            <button class="ts-btn" onclick="selSlot(this)">16:00</button>
-          </div>
-        </div>
-        <div class="bk-form" id="bkForm">
-          <div class="fnote">Almost done — just a couple of details:</div>
-          <div class="frow"><input class="fi" id="bkFirstName" placeholder="First name"><input class="fi" id="bkLastName" placeholder="Last name"></div>
-          <div class="frow"><input class="fi" id="bkEmail" placeholder="Work email" type="email" style="grid-column:1/-1"></div>
-          <div class="frow"><input class="fi" id="bkCompany" placeholder="Company / Brand"><input class="fi" id="bkRole" placeholder="Your role"></div>
-          <div class="bk-err" id="bkError"></div>
-          <button class="sub-btn" id="bkSubmitBtn" onclick="submitBooking()">Confirm session →</button>
-        </div>
+      <div class="bkpanel on" id="bkpanel-cal" style="padding:0;border-radius:0 0 20px 20px;overflow:hidden;">
+        <div id="cal-booking-placeholder" style="min-height:600px;width:100%;"></div>
       </div>
       <div class="bkpanel" id="bkpanel-form">
         <div style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.65;">Not ready to book? Drop your details — we'll be in touch within one business day.</div>
@@ -611,96 +587,44 @@ footer{background:var(--ink);padding:28px 60px;display:flex;align-items:center;j
 </div>
 
 <script>
-// ── CALENDAR STATE ──
-let calYear, calMonth;
-let calSelDate = null; // { d, m, y, label }
-let calSelTime = null;
-
-function initCal() {
-  const now = new Date();
-  calYear  = now.getFullYear();
-  calMonth = now.getMonth();
-  renderCal();
-}
-
-function renderCal() {
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.querySelector('.cal-mo').textContent = monthNames[calMonth] + ' ' + calYear;
-
-  const grid  = document.getElementById('calGrid');
-  grid.innerHTML = '';
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // First weekday of the month (Mon=0 … Sun=6)
-  const firstDay = new Date(calYear, calMonth, 1);
-  let startDow = firstDay.getDay();
-  startDow = startDow === 0 ? 6 : startDow - 1;
-
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-
-  for (let i = 0; i < startDow; i++) {
-    const empty = document.createElement('div');
-    empty.className = 'cal-d empty';
-    grid.appendChild(empty);
-  }
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(calYear, calMonth, d);
-    const dow  = date.getDay();
-    const isWeekend = dow === 0 || dow === 6;
-    const isPast    = date < today;
-
-    const el = document.createElement('div');
-    el.className  = 'cal-d';
-    el.textContent = d;
-
-    if (isPast || isWeekend) {
-      el.classList.add('past');
-    } else {
-      el.classList.add('avail');
-      const label = date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-      el.addEventListener('click', () => selDay(el, d, label));
-      if (calSelDate && calSelDate.d === d && calSelDate.m === calMonth && calSelDate.y === calYear) {
-        el.classList.add('sel');
-      }
+// ── CAL.COM EMBED ──
+(function (C, A, L) {
+  let p = function (a, ar) { a.q.push(ar); };
+  let d = C.document;
+  C.Cal = C.Cal || function () {
+    let cal = C.Cal; let ar = arguments;
+    if (!cal.loaded) {
+      cal.ns = {}; cal.q = cal.q || [];
+      d.head.appendChild(d.createElement("script")).src = A;
+      cal.loaded = true;
     }
-    grid.appendChild(el);
-  }
-}
+    if (ar[0] === L) {
+      const api = function () { p(api, arguments); };
+      const namespace = ar[1]; api.q = api.q || [];
+      if (typeof namespace === "string") {
+        cal.ns[namespace] = cal.ns[namespace] || api;
+        p(cal.ns[namespace], ar);
+        p(cal, [L, namespace, ar[2]]);
+      } else p(cal, ar);
+      return;
+    }
+    p(cal, ar);
+  };
+})(window, "https://app.cal.com/embed/embed.js", "init");
 
-function prevMonth() {
-  const now = new Date();
-  if (calYear === now.getFullYear() && calMonth === now.getMonth()) return;
-  calMonth--;
-  if (calMonth < 0) { calMonth = 11; calYear--; }
-  renderCal();
-}
+Cal("init", { origin: "https://cal.com" });
+Cal("inline", {
+  elementOrSelector: "#cal-booking-placeholder",
+  calLink: "charles-tigges-tp/30min",
+  layout: "month_view"
+});
+Cal("ui", {
+  theme: "light",
+  styles: { branding: { brandColor: "#5B4B8A" } },
+  hideEventTypeDetails: false
+});
 
-function nextMonth() {
-  calMonth++;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  renderCal();
-}
-
-function selDay(el, d, label) {
-  document.querySelectorAll('.cal-d.sel').forEach(c => c.classList.remove('sel'));
-  el.classList.add('sel');
-  calSelDate = { d, m: calMonth, y: calYear, label };
-  calSelTime = null;
-  document.getElementById('tsWrap').classList.add('show');
-  document.querySelectorAll('.ts-btn.sel').forEach(b => b.classList.remove('sel'));
-  document.getElementById('bkForm').classList.remove('show');
-}
-
-function selSlot(el) {
-  document.querySelectorAll('.ts-btn.sel').forEach(b => b.classList.remove('sel'));
-  el.classList.add('sel');
-  calSelTime = el.textContent.trim();
-  document.getElementById('bkForm').classList.add('show');
-}
-
+// ── UI HELPERS ──
 function switchTab(id, btn) {
   document.querySelectorAll('.bktab').forEach(t => t.classList.remove('on'));
   document.querySelectorAll('.bkpanel').forEach(p => p.classList.remove('on'));
@@ -711,49 +635,7 @@ function switchTab(id, btn) {
 function openModal()  { document.getElementById('overlay').classList.add('open'); }
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 
-// ── FORM SUBMISSIONS ──
-async function submitBooking() {
-  const firstName = document.getElementById('bkFirstName').value.trim();
-  const lastName  = document.getElementById('bkLastName').value.trim();
-  const email     = document.getElementById('bkEmail').value.trim();
-  const company   = document.getElementById('bkCompany').value.trim();
-  const role      = document.getElementById('bkRole').value.trim();
-  const errEl     = document.getElementById('bkError');
-
-  errEl.style.display = 'none';
-  if (!firstName || !email) {
-    errEl.textContent = 'Please fill in at least your name and email.';
-    errEl.style.display = 'block'; return;
-  }
-  if (!calSelDate || !calSelTime) {
-    errEl.textContent = 'Please select a date and time above.';
-    errEl.style.display = 'block'; return;
-  }
-
-  const btn = document.getElementById('bkSubmitBtn');
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
-
-  try {
-    await fetch('/.netlify/functions/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'booking', date: calSelDate.label, time: calSelTime + ' London BST', firstName, lastName, email, company, role })
-    });
-    document.getElementById('bkpanel-cal').innerHTML =
-      `<div class="bk-success">
-        <div class="bk-success-icon">✓</div>
-        <div class="bk-success-title">You're booked in.</div>
-        <div class="bk-success-body">${calSelDate.label} at ${calSelTime} London BST.<br>We'll confirm with ${email} shortly.</div>
-      </div>`;
-  } catch(e) {
-    btn.disabled = false;
-    btn.textContent = 'Confirm session →';
-    errEl.textContent = 'Something went wrong — please try again.';
-    errEl.style.display = 'block';
-  }
-}
-
+// ── SEND A NOTE FORM ──
 async function submitNote() {
   const firstName = document.getElementById('noteFirstName').value.trim();
   const lastName  = document.getElementById('noteLastName').value.trim();
@@ -817,88 +699,21 @@ function addTyping(container) {
   return t;
 }
 
-// ── INLINE CHAT CALENDAR ──
-const chatSlotMap = {};
-
-function showInlineCalendar(container) {
-  // Generate next 6 available weekday slots from today
-  const slots = [];
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  const times = ['09:00', '11:00', '14:00', '15:30'];
-  while (slots.length < 6) {
-    d.setDate(d.getDate() + 1);
-    const dow = d.getDay();
-    if (dow === 0 || dow === 6) continue;
-    const label = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    times.slice(0, 2).forEach(t => {
-      if (slots.length < 6) slots.push(`${label} · ${t}`);
-    });
-  }
-
-  const calId   = 'chatCal_' + Date.now();
-  const emailId = 'chatEmail_' + calId;
-  const msgId   = 'chatMsg_' + calId;
-
+// Shows a Cal.com popup trigger inside the chat when SHOW_CALENDAR fires
+function showCalBooking(container) {
   const wrap = document.createElement('div');
   wrap.className = 'msg msg-b';
   wrap.style.cssText = 'opacity:1;animation:none;';
-  wrap.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:300px;">
-    <div style="margin-bottom:8px;">Pick a slot that works:</div>
-    <div class="chat-cal show" id="${calId}">
-      <div class="chat-cal-slots">${slots.map(s => `<div class="chat-slot" onclick="chatSlotPick(this,'${s}','${calId}')">${s}</div>`).join('')}</div>
-      <div class="chat-email-capture" id="${emailId}" style="display:none;margin-top:10px;">
-        <input class="bi" id="chatEmailInput_${calId}" placeholder="Your email address" type="email"
-          style="width:100%;margin-bottom:6px;font-size:12px;border-radius:8px;"
-          onkeydown="if(event.key==='Enter')submitChatBooking('${calId}')">
-        <button onclick="submitChatBooking('${calId}')"
-          style="width:100%;padding:8px;font-family:var(--font-b);font-weight:600;font-size:12px;color:var(--white);background:var(--purple-m);border:none;border-radius:8px;cursor:pointer;">
-          Confirm →
-        </button>
-        <div id="${msgId}" style="font-size:12px;margin-top:6px;display:none;"></div>
-      </div>
-    </div>
+  wrap.innerHTML = `<div class="mav">🔥</div><div class="bub" style="max-width:260px;">
+    <div style="margin-bottom:10px;">Here's my calendar — pick a time that works:</div>
+    <button onclick="Cal('modal',{calLink:'charles-tigges-tp/30min'})"
+      style="width:100%;padding:10px 14px;font-family:var(--font-b);font-weight:600;font-size:13px;
+             color:var(--white);background:var(--purple-m);border:none;border-radius:10px;cursor:pointer;">
+      📅 See available slots
+    </button>
   </div>`;
   container.appendChild(wrap);
   container.scrollTop = container.scrollHeight;
-}
-
-function chatSlotPick(el, slot, calId) {
-  document.querySelectorAll(`#${calId} .chat-slot`).forEach(s => s.classList.remove('booked'));
-  el.classList.add('booked');
-  chatSlotMap[calId] = slot;
-  const emailCapture = document.getElementById('chatEmail_' + calId);
-  if (emailCapture) {
-    emailCapture.style.display = 'block';
-    const input = document.getElementById('chatEmailInput_' + calId);
-    if (input) input.focus();
-  }
-}
-
-async function submitChatBooking(calId) {
-  const emailInput = document.getElementById('chatEmailInput_' + calId);
-  const msgEl      = document.getElementById('chatMsg_' + calId);
-  const email = emailInput ? emailInput.value.trim() : '';
-  const slot  = chatSlotMap[calId];
-
-  if (!email || !email.includes('@')) {
-    if (msgEl) { msgEl.textContent = 'Please enter a valid email.'; msgEl.style.color = '#DC2626'; msgEl.style.display = 'block'; }
-    return;
-  }
-
-  try {
-    await fetch('/.netlify/functions/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'chat-booking', slot, email })
-    });
-  } catch(e) { /* fail silently — booking is still confirmed to user */ }
-
-  if (msgEl) { msgEl.textContent = '✓ Booked — we\'ll confirm with ' + email; msgEl.style.color = '#16A34A'; msgEl.style.display = 'block'; }
-  if (emailInput) emailInput.disabled = true;
-  document.querySelectorAll(`#${calId} .chat-slot`).forEach(s => s.style.pointerEvents = 'none');
-  const confirmBtn = emailInput && emailInput.nextElementSibling;
-  if (confirmBtn) confirmBtn.disabled = true;
 }
 
 // ── CLAUDE API BOT ENGINE ──
@@ -1040,14 +855,10 @@ async function heroSend(){
   const reply = await callEmber(val, heroHistory);
   t.remove();
   input.disabled = false;
-  if(reply === 'SHOW_CALENDAR'){
-    addMsg(msgs, 'bot', "Great — here are some times that work:");
-    showInlineCalendar(msgs);
+  if(reply === 'SHOW_CALENDAR' || reply.includes('SHOW_CALENDAR')){
+    showCalBooking(msgs);
   } else {
     addMsg(msgs, 'bot', reply);
-    if(reply.toLowerCase().includes('show_calendar')){
-      showInlineCalendar(msgs);
-    }
   }
 }
 
@@ -1065,8 +876,7 @@ async function modalSend(){
   t.remove();
   input.disabled = false;
   if(reply === 'SHOW_CALENDAR' || reply.includes('SHOW_CALENDAR')){
-    addMsg(msgs, 'bot', "Great — here are some open slots:");
-    showInlineCalendar(msgs);
+    showCalBooking(msgs);
   } else {
     addMsg(msgs, 'bot', reply);
   }
@@ -1081,9 +891,6 @@ document.getElementById('modalSend').addEventListener('click', modalSend);
 // ── SCROLL REVEAL ──
 const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target);}});},{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-// ── INIT ──
-initCal();
 </script>
 </body>
 </html>
